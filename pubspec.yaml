@@ -54,6 +54,8 @@ flutter:
     - assets/navigationbar/bar3-a.png
     - assets/navigationbar/bar4.png
     - assets/navigationbar/bar4-a.png
+    - assets/home/seach-icon.png
+    - assets/home/alert-icon.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
