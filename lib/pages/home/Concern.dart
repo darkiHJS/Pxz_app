@@ -1,0 +1,22 @@
+import 'package:flutter/material.dart';
+import './components/ConcernItem.dart';
+
+class ConcernPage extends StatefulWidget {
+  ConcernPage({Key key}) : super(key: key);
+
+  @override
+  _ConcernPageState createState() => _ConcernPageState();
+}
+
+class _ConcernPageState extends State<ConcernPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.red,
+      alignment: Alignment.topLeft,
+      child: Container(
+        child: ConcernItem()
+      )
+    );
+  }
+}
