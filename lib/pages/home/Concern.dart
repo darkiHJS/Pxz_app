@@ -12,11 +12,14 @@ class _ConcernPageState extends State<ConcernPage> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.red,
-      alignment: Alignment.topLeft,
-      child: Container(
-        child: ConcernItem()
-      )
-    );
+        child: ListView.builder(
+            padding: EdgeInsets.zero,
+            itemCount: 100,
+            itemBuilder: (BuildContext context, int index) {
+            return ConcernItem();
+           },
+          ),
+        );
   }
 }
+
