@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:hello_world/pages/home/Discovery.dart';
 
 import '../Concern.dart'; // 引入关注页面
+import '../Exaid.dart'; // 引入救助界面
 
 class HomeTabBar extends StatefulWidget {
   HomeTabBar({Key key}) : super(key: key);
@@ -9,9 +11,9 @@ class HomeTabBar extends StatefulWidget {
   _HomeTabBarState createState() => _HomeTabBarState();
 }
 
-class _HomeTabBarState extends State<HomeTabBar> with SingleTickerProviderStateMixin{
-
-  final List<Tab> tabTitleList = <Tab> [
+class _HomeTabBarState extends State<HomeTabBar>
+    with SingleTickerProviderStateMixin {
+  final List<Tab> tabTitleList = <Tab>[
     Tab(text: "关注"),
     Tab(text: "救助"),
     Tab(text: "发现")
@@ -34,32 +36,37 @@ class _HomeTabBarState extends State<HomeTabBar> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     return Container(
-       child: Column(
+      child: Column(
         children: <Widget>[
-          Row(
-            children: <Widget>[
-              IconButton(icon: Image.asset("assets/home/seach-icon.png", width: 20.0,), onPressed: null),
-              Expanded(
-                child: TabBar(
-                  indicatorColor: Color.fromRGBO(243, 215, 44, 1),
-                  indicatorSize: TabBarIndicatorSize.label,
-                  controller: _tabController,
-                  tabs: tabTitleList
-                )
-              ),
-              IconButton(icon: Image.asset("assets/home/alert-icon.png", width: 20.0), onPressed: null),
-            ],
+          Padding(
+            padding: EdgeInsets.fromLTRB(10, 0, 10, 5),
+            child: Row(
+              children: <Widget>[
+                IconButton(
+                    icon: Image.asset(
+                      "assets/home/seach-icon.png",
+                      width: 20.0,
+                    ),
+                    onPressed: null),
+                Expanded(
+                    child: TabBar(
+                        indicator: UnderlineTabIndicator(
+                          borderSide: BorderSide(width: 3.0, color: Color(0xfff5cd1f)),
+                          insets: EdgeInsets.fromLTRB(30, 1, 30, 8),
+                        ),
+                        controller: _tabController,
+                        tabs: tabTitleList)),
+                IconButton(
+                    icon:
+                        Image.asset("assets/home/alert-icon.png", width: 20.0),
+                    onPressed: null),
+              ],
+            ),
           ),
           Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                ConcernPage(),
-                Text("321"),
-                Text("123456")
-              ]
-            )
-          )
+              child: TabBarView(
+                  controller: _tabController,
+                  children: [ConcernPage(), ExaidPage(), DiscoveryPage()]))
         ],
       ),
     );

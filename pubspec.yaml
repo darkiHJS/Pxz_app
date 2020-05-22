@@ -23,6 +23,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_staggered_grid_view: "^0.3.0"
+  dio: ^3.0.8
+  awsome_video_player: ^1.0.8+1
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -56,6 +59,9 @@ flutter:
     - assets/navigationbar/bar4-a.png
     - assets/home/seach-icon.png
     - assets/home/alert-icon.png
+    - assets/home/swiper_decorate_left.png
+    - assets/home/swiper_decorate_right.png
+    - assets/home/loading.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

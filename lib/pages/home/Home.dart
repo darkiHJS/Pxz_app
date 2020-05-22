@@ -7,12 +7,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        border: Border(
-          top: BorderSide(width: 28.0, color: Color.fromRGBO(243, 215, 44, 1))
-        )
-      ),
-      alignment: Alignment.topLeft,
+      width: double.infinity,
       child: HomeTabBar()
     );
   }
