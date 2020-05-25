@@ -1,5 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:hello_world/utils/Request.dart';
 
 // 详情页路由
@@ -36,7 +38,7 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
         SliverAppBar(
           expandedHeight: 190.0,
           backgroundColor: Colors.transparent,
-          flexibleSpace: FlexibleSpaceBar(background: NekoBanner()),
+          flexibleSpace: FlexibleSpaceBar(background: NekoSwiper()),
         ),
         SliverPadding(
           padding: EdgeInsets.all(5),
@@ -59,33 +61,38 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
 ///
 /// 轮播图
 ///
-class NekoBanner extends StatefulWidget {
-  NekoBanner({Key key}) : super(key: key);
+class NekoSwiper extends StatelessWidget {
+  static List<Widget> swiperItem = [
+    CachedNetworkImage(
+      fit: BoxFit.fitWidth,
+      placeholder: (context, url) => Image.asset("assets/home/loading.png"),
+      imageUrl: "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=2364654808,1367649755&fm=26&gp=0.jpg",
+      errorWidget: (context, url, error) => Icon(Icons.error),
+    ),
+    CachedNetworkImage(
+      fit: BoxFit.fitWidth,
+      placeholder: (context, url) => Image.asset("assets/home/loading.png"),
+      imageUrl: "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1589795536301&di=e65c12f32f0969f9337c309db95209cb&imgtype=0&src=http%3A%2F%2Fwww.chabeichong.com%2Fimages%2F2016%2F10%2F21-06155760.jpg",
+      errorWidget: (context, url, error) => Icon(Icons.error),
+    )
+  ];
+  const NekoSwiper({Key key}) : super(key: key);
 
-  @override
-  _NekoBannerState createState() => _NekoBannerState();
-}
-
-class _NekoBannerState extends State<NekoBanner> {
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return Container(
+      child: Stack(
       children: <Widget>[
         Container(
             margin: EdgeInsets.fromLTRB(5, 12, 5, 0),
             child: ClipRRect(
               borderRadius: BorderRadius.all(Radius.circular(3.0)),
-              child: PageView(
-                children: <Widget>[
-                  Image.network(
-                    "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=2364654808,1367649755&fm=26&gp=0.jpg",
-                    fit: BoxFit.fitWidth,
-                  ),
-                  Image.network(
-                    "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1589795536301&di=e65c12f32f0969f9337c309db95209cb&imgtype=0&src=http%3A%2F%2Fwww.chabeichong.com%2Fimages%2F2016%2F10%2F21-06155760.jpg",
-                    fit: BoxFit.fitWidth,
-                  )
-                ],
+              child: Swiper(
+                itemBuilder: (BuildContext context,int index) {
+                  return swiperItem[index];
+                },
+                itemCount: 2,
+                pagination: SwiperPagination(),
               ),
             )),
         Positioned(
@@ -103,6 +110,7 @@ class _NekoBannerState extends State<NekoBanner> {
           child: Image.asset("assets/home/swiper_decorate_right.png"),
         )
       ],
+    )
     );
   }
 }
@@ -132,15 +140,26 @@ class ProgramItem extends StatelessWidget {
         children: <Widget>[
           GestureDetector(
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder:(context) => DiscoveryItemPage(itemId: discoveryDataItem.id,)));
+              Navigator.push(context, MaterialPageRoute(builder:(context) => DiscoveryItemPage(itemId: discoveryDataItem.id)));
             },
-            child: ClipRRect(
+            child: Stack(
+              alignment: Alignment.center,
+              children: <Widget>[
+                ClipRRect(
                 borderRadius: BorderRadius.vertical(top: Radius.circular(3)),
                 child: discoveryDataItem.resources.length > 0
-                    ? FadeInImage.assetNetwork(
-                        placeholder: "assets/home/loading.png",
-                        image: discoveryDataItem.resources[0].url)
+                    ? CachedNetworkImage (
+                      placeholder: (context, url) => Image.asset("assets/home/loading.png"),
+                      imageUrl: discoveryDataItem.mainDefaultId,
+                    ) 
                     : Image.asset("assets/home/loading.png")),
+                discoveryDataItem.resources[0].type == "video" ?  
+                Positioned(
+                  child: Icon(Icons.play_circle_outline, color: Colors.white, size: 25,),
+                ) : 
+                SizedBox.shrink() 
+              ],
+            )
           ),
           Container(
             margin: EdgeInsets.fromLTRB(5, 10, 10, 5),
@@ -198,10 +217,11 @@ class DiscoveryDataItem {
   String id;
   String title;
   String likeNum;
+  String mainDefaultId;
   MemberDetail memberDetail;
   List<Resource> resources;
   DiscoveryDataItem(
-      {this.id, this.title, this.likeNum, this.memberDetail, this.resources});
+      {this.id, this.title, this.likeNum, this.mainDefaultId, this.memberDetail, this.resources});
 
   factory DiscoveryDataItem.fromJson(Map<String, dynamic> parsedJson) {
     List<dynamic> resources = parsedJson["resources"] as List;
@@ -209,6 +229,7 @@ class DiscoveryDataItem {
         id: parsedJson["id"],
         title: parsedJson["title"],
         likeNum: parsedJson["like_num"],
+        mainDefaultId: parsedJson["main_default_id"],
         memberDetail: MemberDetail.fromJson(parsedJson["member_detail"]),
         resources: resources.map((e) => Resource.fromJson(e)).toList());
   }

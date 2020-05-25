@@ -20,9 +20,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp, //只能纵向
-        // DeviceOrientation.portraitDown,
-      ]);
+      DeviceOrientation.portraitUp,
+    ]);
     return MaterialApp(
         title: 'Material App',
         theme: ThemeData(
