@@ -66,6 +66,7 @@ flutter:
     - assets/home/swiper_decorate_right.png
     - assets/home/loading.png
     - assets/test_video.mp4
+    - assets/details/details_loading.gif
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

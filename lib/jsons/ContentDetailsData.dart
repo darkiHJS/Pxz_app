@@ -1,5 +1,5 @@
 
-class DiscoveryItemData {
+class ContentDetailsData {
   String id;
   String title;
   String linkVideo;
@@ -23,7 +23,7 @@ class DiscoveryItemData {
   List<PetList> petList;
   CommentList commentList;
 
-  DiscoveryItemData(
+  ContentDetailsData(
       {this.id,
       this.title,
       this.linkVideo,
@@ -47,7 +47,7 @@ class DiscoveryItemData {
       this.petList,
       this.commentList});
 
-  DiscoveryItemData.fromJson(Map<String, dynamic> json) {
+  ContentDetailsData.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     title = json['title'];
     linkVideo = json['link_video'];

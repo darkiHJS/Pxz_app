@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
+import 'package:hello_world/pages/home/DetailsArticle.dart';
 import 'package:hello_world/utils/Request.dart';
 
 // 详情页路由
@@ -140,10 +141,13 @@ class ProgramItem extends StatelessWidget {
         children: <Widget>[
           GestureDetector(
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder:(context) => DiscoveryItemPage(itemId: discoveryDataItem.id)));
+              if (discoveryDataItem.resources[0].type == "video") {
+                Navigator.push(context, MaterialPageRoute(builder:(context) => DiscoveryItemPage(itemId: discoveryDataItem.id)));
+              } else {
+                Navigator.push(context, MaterialPageRoute(builder:(context) => DetailsArticlePage(id: discoveryDataItem.id,)));              
+              }
             },
             child: Stack(
-              alignment: Alignment.center,
               children: <Widget>[
                 ClipRRect(
                 borderRadius: BorderRadius.vertical(top: Radius.circular(3)),
@@ -155,7 +159,15 @@ class ProgramItem extends StatelessWidget {
                     : Image.asset("assets/home/loading.png")),
                 discoveryDataItem.resources[0].type == "video" ?  
                 Positioned(
-                  child: Icon(Icons.play_circle_outline, color: Colors.white, size: 25,),
+                  right: 5,
+                  bottom: 5,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black26,
+                      borderRadius: BorderRadius.all(Radius.circular(25)),
+                    ),
+                    child: Icon(Icons.play_circle_outline, color: Colors.white, size: 25,),
+                  ) 
                 ) : 
                 SizedBox.shrink() 
               ],

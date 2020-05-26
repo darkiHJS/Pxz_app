@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:awsome_video_player/awsome_video_player.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:hello_world/components/PhotoViewSimpleScreen.dart';
-import 'package:hello_world/jsons/DiscoveryItemData.dart';
+import 'package:hello_world/jsons/ContentDetailsData.dart';
 import 'package:hello_world/utils/Request.dart';
 
 class DiscoveryItemPage extends StatefulWidget {
@@ -15,7 +15,7 @@ class DiscoveryItemPage extends StatefulWidget {
 
 class _DiscoverItemPageState extends State<DiscoveryItemPage> {
   final String itemId;
-  DiscoveryItemData _discoveryItemData;
+  ContentDetailsData _discoveryItemData;
   _DiscoverItemPageState(this.itemId);
 
   bool _isPlaying = false;
@@ -33,9 +33,8 @@ class _DiscoverItemPageState extends State<DiscoveryItemPage> {
     getData() async {
       Map<String, dynamic> data =
           await PxzRequest().get("/rescue/detail/$itemId");
-      print(data);
       setState(() {
-        _discoveryItemData = DiscoveryItemData.fromJson(data["data"]);
+        _discoveryItemData = ContentDetailsData.fromJson(data["data"]);
       });
     }
 
@@ -44,7 +43,6 @@ class _DiscoverItemPageState extends State<DiscoveryItemPage> {
 
   @override
   Widget build(BuildContext context) {
-    print(itemId);
     return Container(
         child: Scaffold(
       body: Container(
@@ -61,8 +59,8 @@ class _DiscoverItemPageState extends State<DiscoveryItemPage> {
                         ? SizedBox.shrink()
                         : _discoveryItemData.resources[0].type == "video"
                             ? VideoComponent(
-                                videoUrl: "assets/test_video.mp4",
-                                // _discoveryItemData.resources[0].url
+                                // videoUrl: "assets/test_video.mp4",
+                                videoUrl: _discoveryItemData.resources[0].url
                               )
                             : Swiper(
                                 itemBuilder: (BuildContext context, int index) {
@@ -94,17 +92,20 @@ class _DiscoverItemPageState extends State<DiscoveryItemPage> {
                                 scale: 0.9,
                               ),
                     Positioned(
-                      top: 50,
+                      top: 30,
                       left: 5,
                       right: 5,
                       child: Row(
                         children: <Widget>[
+                          // 返回按钮
                           IconButton(
                               icon: Icon(
                                 Icons.arrow_back_ios,
                                 color: Colors.white,
                               ),
-                              onPressed: null),
+                              onPressed:() {
+                                Navigator.of(context).pop();
+                              }),
                           Expanded(
                             child: Text(""),
                           ),
