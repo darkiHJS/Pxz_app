@@ -31,8 +31,7 @@ class _DiscoverItemPageState extends State<DiscoveryItemPage> {
   void initState() {
     super.initState();
     getData() async {
-      Map<String, dynamic> data =
-          await PxzRequest().get("/rescue/detail/$itemId");
+      Map<String, dynamic> data =  await PxzRequest().get("/rescue/detail/$itemId");
       setState(() {
         _discoveryItemData = ContentDetailsData.fromJson(data["data"]);
       });
