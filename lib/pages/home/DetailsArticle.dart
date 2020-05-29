@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:hello_world/jsons/CommentItem.dart';
@@ -37,8 +38,6 @@ class _DetailsArticlePageState extends State<DetailsArticlePage> {
       });
       print(_maxSwiper.width);
     });
-
-    // return null;
   }
 
   @override
@@ -159,22 +158,25 @@ class _DetailsArticlePageState extends State<DetailsArticlePage> {
                             title: _contentDetailsData.title,
                             desc: _contentDetailsData.desc,
                           ),
-                          Padding(padding: EdgeInsets.symmetric(horizontal: 15), child: Divider(height: 20,color: Colors.grey,),),
-                          CommentList(id: "1",),
-                          SizedBox.fromSize(
-                            size: Size.fromHeight(55),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 15),
+                            child: Divider(
+                              height: 50,
+                              color: Color(0xffdddddd),
+                            ),
                           )
                         ]),
                       ),
+                      CommentList(
+                        id: "1",
+                      ),
+                      SliverPadding(
+                        padding: EdgeInsets.only(bottom: 55),
+                      )
                     ],
                   ),
                   Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: DetailsBottomBar()
-                  ),
-                  
+                      bottom: 0, left: 0, right: 0, child: DetailsBottomBar()),
                 ],
               ));
   }
@@ -218,15 +220,15 @@ class _DetailsBottomBarState extends State<DetailsBottomBar> {
       padding: EdgeInsets.symmetric(horizontal: 5),
       height: 45,
       decoration: BoxDecoration(
-        border: Border(top: BorderSide(color:  Theme.of(context).dividerColor)),
-        color: Colors.white
-      ),
+          border:
+              Border(top: BorderSide(color: Theme.of(context).dividerColor)),
+          color: Colors.white),
       child: Row(
         children: <Widget>[
           FlatButton.icon(
-            onPressed: null, 
-            icon: Icon(Icons.create), 
-            label: Text("说点什么吧……")),
+              onPressed: null,
+              icon: Icon(Icons.create),
+              label: Text("说点什么吧……")),
           Expanded(child: SizedBox.shrink()),
           MaterialButton(
             onPressed: null,
@@ -236,7 +238,7 @@ class _DetailsBottomBarState extends State<DetailsBottomBar> {
               children: <Widget>[
                 Icon(Icons.favorite_border),
                 Text("1151"),
-              ], 
+              ],
             ),
           ),
           MaterialButton(
@@ -247,7 +249,7 @@ class _DetailsBottomBarState extends State<DetailsBottomBar> {
               children: <Widget>[
                 Icon(Icons.star_border),
                 Text("1151"),
-              ], 
+              ],
             ),
           ),
           MaterialButton(
@@ -258,7 +260,7 @@ class _DetailsBottomBarState extends State<DetailsBottomBar> {
               children: <Widget>[
                 Icon(Icons.chat_bubble_outline),
                 Text("1151"),
-              ], 
+              ],
             ),
           ),
         ],
@@ -268,7 +270,7 @@ class _DetailsBottomBarState extends State<DetailsBottomBar> {
 }
 
 /// 评论列表
-/// 
+///
 
 class CommentList extends StatefulWidget {
   final String id;
@@ -281,29 +283,19 @@ class CommentList extends StatefulWidget {
 class _CommentListState extends State<CommentList> {
   String id;
   _CommentListState(this.id);
-  
+
   List<CommentItem> _commentItems = [];
   int _totalItems;
   int _index = 1;
   Future getCommentList() async {
-    Map<String, dynamic> data = 
-      await PxzRequest().get(
-        "/rescue/get_comment", 
-        data: {
-          "id": id,
-          "page": _index,
-          "limit": 10
-        }
-      );
+    Map<String, dynamic> data = await PxzRequest().get("/rescue/get_comment",
+        data: {"id": id, "page": _index, "limit": 10});
     setState(() {
       data["data"]["items"].forEach((element) {
         _commentItems.add(CommentItem.fromJson(element));
       });
       _totalItems = data["data"]["total_items"];
     });
-    print("请求数据");
-    print(_commentItems);
-    print(_totalItems);
   }
 
   @override
@@ -314,21 +306,197 @@ class _CommentListState extends State<CommentList> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: _commentItems ?? SliverList(
-        delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
-          return Row(
-            children: <Widget>[
-              CircleAvatar(
-                radius: 15,
-                backgroundImage: NetworkImage(_commentItems[index].memberDetail.avatar),
-              )
-            ],  
-          );
-        },
-        childCount: _commentItems.length
-      )
-    )
+    return SliverPadding(
+        padding: EdgeInsets.symmetric(horizontal: 15),
+        sliver: _commentItems == null
+            ? SizedBox.shrink()
+            : SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                        (BuildContext context, int index) {
+                  CommentItem item = _commentItems[index];
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Padding(
+                              padding: EdgeInsets.only(right: 10),
+                              child: CircleAvatar(
+                                radius: 18,
+                                backgroundImage:
+                                    NetworkImage(item.memberDetail.avatar),
+                              ),
+                            ),
+                            Expanded(
+                              child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Text(item.memberDetail.nickname),
+                                    RichText(
+                                        textAlign: TextAlign.start,
+                                        text: TextSpan(
+                                            style: DefaultTextStyle.of(context)
+                                                .style,
+                                            text: item.content,
+                                            children: <TextSpan>[
+                                              TextSpan(
+                                                  text: "  昨天 23:05",
+                                                  style: TextStyle(
+                                                      color: Colors.grey,
+                                                      fontSize: 12))
+                                            ]))
+                                  ]),
+                            ),
+                            Column(
+                              children: <Widget>[
+                                GestureDetector(
+                                    onTap: () {},
+                                    child: Icon(
+                                      Icons.favorite_border,
+                                      size: 20,
+                                      color: Colors.grey,
+                                    )),
+                                Text(
+                                  "1151",
+                                  style: TextStyle(
+                                      fontSize: 10, color: Colors.grey),
+                                ),
+                              ],
+                            )
+                          ]),
+                      Container(
+                        padding: EdgeInsets.fromLTRB(50, 10, 0, 0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              itemCount: item.commentItemChildrens.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return CommentChildItem(
+                                    item.commentItemChildrens[index]);
+                              },
+                            ),
+                            item.childrenCount > 0
+                                ? FlatButton(
+                                    onPressed: null,
+                                    child: Text(
+                                      "展开${item.childrenCount - item.commentItemChildrens.length}条回复",
+                                      style: TextStyle(
+                                          color: Colors.blue, fontSize: 12),
+                                    ))
+                                : SizedBox.shrink(),
+                          ],
+                        ),
+                      ),
+                      index == _commentItems.length - 1
+                          ? SizedBox.shrink()
+                          : Padding(
+                              padding: EdgeInsets.only(left: 50),
+                              child: Divider(
+                                height: 30,
+                                color: Color(0xffdddddd),
+                              ),
+                            )
+                    ],
+                  );
+                }, childCount: _commentItems.length))
     );
+  }
+}
+
+// 二级评论 item
+
+class CommentChildItem extends StatelessWidget {
+  final CommentItemChildrens item;
+  final TapGestureRecognizer _tapGestureRecognizer =
+      new TapGestureRecognizer(); // 不卸载可能会出现问题
+  CommentChildItem(this.item);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+        onTap: () {
+          print("点击了外层");
+        },
+        child: Container(
+            child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.fromLTRB(0, 0, 5, 0),
+                  child: CircleAvatar(
+                    radius: 10,
+                    backgroundImage: NetworkImage(item.memberDetail.avatar),
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        item.memberDetail.nickname,
+                        style: TextStyle(fontSize: 14),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 5),
+                        child: item.toMemberId == null
+                            ? RichText(
+                                text: TextSpan(
+                                    text: item.content,
+                                    children: <TextSpan>[
+                                      TextSpan(
+                                          text: "  昨天 23:05",
+                                          style: TextStyle(
+                                              color: Colors.grey, fontSize: 12))
+                                    ]),
+                              )
+                            : RichText(
+                                softWrap: true,
+                                text: TextSpan(
+                                    text: "回复",
+                                    style: DefaultTextStyle.of(context).style,
+                                    children: <TextSpan>[
+                                      TextSpan(
+                                          text: ' @${item.toMemberNickname}: ',
+                                          style: TextStyle(color: Colors.grey),
+                                          recognizer: _tapGestureRecognizer
+                                            ..onTap = () {
+                                              print("@被点击了");
+                                            }),
+                                      TextSpan(text: item.content),
+                                      TextSpan(
+                                          text: "  昨天 23:05",
+                                          style: TextStyle(
+                                              color: Colors.grey, fontSize: 12))
+                                    ])),
+                      )
+                    ],
+                  ),
+                ),
+                Column(
+                  children: <Widget>[
+                    GestureDetector(
+                        onTap: () {},
+                        child: Icon(
+                          Icons.favorite_border,
+                          size: 20,
+                          color: Colors.grey,
+                        )),
+                    Text(
+                      "1151",
+                      style: TextStyle(fontSize: 10, color: Colors.grey),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ],
+        )));
   }
 }

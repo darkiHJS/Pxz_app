@@ -10,7 +10,7 @@ class CommentItem {
   // Null toMemberNickname;
   MemberDetail memberDetail;
   int childrenCount;
-  List<Childrens> childrens;
+  List<CommentItemChildrens> commentItemChildrens;
 
   CommentItem(
       {this.id,
@@ -24,7 +24,7 @@ class CommentItem {
       // this.toMemberNickname,
       this.memberDetail,
       this.childrenCount,
-      this.childrens});
+      this.commentItemChildrens});
 
   CommentItem.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -41,9 +41,9 @@ class CommentItem {
         : null;
     childrenCount = json['children_count'];
     if (json['childrens'] != null) {
-      childrens = new List<Childrens>();
+      commentItemChildrens = new List<CommentItemChildrens>();
       json['childrens'].forEach((v) {
-        childrens.add(new Childrens.fromJson(v));
+        commentItemChildrens.add(new CommentItemChildrens.fromJson(v));
       });
     }
   }
@@ -63,8 +63,8 @@ class CommentItem {
       data['member_detail'] = this.memberDetail.toJson();
     }
     data['children_count'] = this.childrenCount;
-    if (this.childrens != null) {
-      data['childrens'] = this.childrens.map((v) => v.toJson()).toList();
+    if (this.commentItemChildrens != null) {
+      data['childrens'] = this.commentItemChildrens.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -92,7 +92,7 @@ class MemberDetail {
   }
 }
 
-class Childrens {
+class CommentItemChildrens {
   String id;
   String startId;
   String pid;
@@ -104,11 +104,11 @@ class Childrens {
   String toMemberNickname;
   String praiseNum;
   String status;
-  Null createTime;
-  Null updateTime;
+  // Null createTime;
+  // Null updateTime;
   MemberDetail memberDetail;
 
-  Childrens(
+  CommentItemChildrens(
       {this.id,
       this.startId,
       this.pid,
@@ -120,11 +120,11 @@ class Childrens {
       this.toMemberNickname,
       this.praiseNum,
       this.status,
-      this.createTime,
-      this.updateTime,
+      // this.createTime,
+      // this.updateTime,
       this.memberDetail});
 
-  Childrens.fromJson(Map<String, dynamic> json) {
+  CommentItemChildrens.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     startId = json['start_id'];
     pid = json['pid'];
@@ -136,8 +136,8 @@ class Childrens {
     toMemberNickname = json['to_member_nickname'];
     praiseNum = json['praise_num'];
     status = json['status'];
-    createTime = json['create_time'];
-    updateTime = json['update_time'];
+    // createTime = json['create_time'];
+    // updateTime = json['update_time'];
     memberDetail = json['member_detail'] != null
         ? new MemberDetail.fromJson(json['member_detail'])
         : null;
@@ -156,8 +156,8 @@ class Childrens {
     data['to_member_nickname'] = this.toMemberNickname;
     data['praise_num'] = this.praiseNum;
     data['status'] = this.status;
-    data['create_time'] = this.createTime;
-    data['update_time'] = this.updateTime;
+    // data['create_time'] = this.createTime;
+    // data['update_time'] = this.updateTime;
     if (this.memberDetail != null) {
       data['member_detail'] = this.memberDetail.toJson();
     }
