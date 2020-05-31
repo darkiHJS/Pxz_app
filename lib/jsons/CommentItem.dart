@@ -95,10 +95,10 @@ class MemberDetail {
 class CommentItemChildrens {
   String id;
   String startId;
-  String pid;
+  // String pid;
   String content;
   String rescueId;
-  String level;
+  // String level;
   String memberId;
   String toMemberId;
   String toMemberNickname;
@@ -111,10 +111,10 @@ class CommentItemChildrens {
   CommentItemChildrens(
       {this.id,
       this.startId,
-      this.pid,
+      // this.pid,
       this.content,
       this.rescueId,
-      this.level,
+      // this.level,
       this.memberId,
       this.toMemberId,
       this.toMemberNickname,
@@ -127,10 +127,10 @@ class CommentItemChildrens {
   CommentItemChildrens.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     startId = json['start_id'];
-    pid = json['pid'];
+    // pid = json['pid'];
     content = json['content'];
     rescueId = json['rescue_id'];
-    level = json['level'];
+    // level = json['level'];
     memberId = json['member_id'];
     toMemberId = json['to_member_id'];
     toMemberNickname = json['to_member_nickname'];
@@ -147,10 +147,10 @@ class CommentItemChildrens {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['id'] = this.id;
     data['start_id'] = this.startId;
-    data['pid'] = this.pid;
+    // data['pid'] = this.pid;
     data['content'] = this.content;
     data['rescue_id'] = this.rescueId;
-    data['level'] = this.level;
+    // data['level'] = this.level;
     data['member_id'] = this.memberId;
     data['to_member_id'] = this.toMemberId;
     data['to_member_nickname'] = this.toMemberNickname;

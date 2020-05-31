@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
+import 'package:hello_world/components/PhotoViewSimpleScreen.dart';
 import 'package:hello_world/jsons/CommentItem.dart';
 import 'package:hello_world/jsons/ContentDetailsData.dart';
 import 'package:hello_world/utils/Request.dart';
@@ -128,22 +129,40 @@ class _DetailsArticlePageState extends State<DetailsArticlePage> {
                                       _contentDetailsData.resources.length,
                                   itemBuilder:
                                       (BuildContext context, int index) {
-                                    return Column(
-                                      children: <Widget>[
-                                        CachedNetworkImage(
-                                          height: double.parse(
-                                                  _maxSwiper.height) /
-                                              (double.parse(_maxSwiper.width) /
-                                                  MediaQuery.of(context)
-                                                      .size
-                                                      .width),
-                                          alignment: Alignment.center,
-                                          imageUrl: _contentDetailsData
-                                              .resources[index].url,
-                                          fit: BoxFit.fitWidth,
-                                        ),
-                                        SizedBox.shrink()
-                                      ],
+                                    return GestureDetector(
+                                      onTap: () {
+                                        Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                                builder:
+                                                    (BuildContext context) =>
+                                                        PhotoViewSimpleScreen(
+                                                          imageProvider:
+                                                              NetworkImage(
+                                                                  _contentDetailsData
+                                                                      .resources[
+                                                                          index]
+                                                                      .url),
+                                                          heroTag: "hero",
+                                                        )));
+                                      },
+                                      child: Column(
+                                        children: <Widget>[
+                                          CachedNetworkImage(
+                                            height: double.parse(
+                                                    _maxSwiper.height) /
+                                                (double.parse(
+                                                        _maxSwiper.width) /
+                                                    MediaQuery.of(context)
+                                                        .size
+                                                        .width),
+                                            alignment: Alignment.center,
+                                            imageUrl: _contentDetailsData
+                                                .resources[index].url,
+                                            fit: BoxFit.fitWidth,
+                                          ),
+                                          SizedBox.shrink()
+                                        ],
+                                      ),
                                     );
                                   },
                                   // control: new SwiperControl(),
@@ -226,7 +245,10 @@ class _DetailsBottomBarState extends State<DetailsBottomBar> {
       child: Row(
         children: <Widget>[
           FlatButton.icon(
-              onPressed: null,
+              onPressed: () {},
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
+              color: Color(0xffececec),
               icon: Icon(Icons.create),
               label: Text("说点什么吧……")),
           Expanded(child: SizedBox.shrink()),
@@ -298,6 +320,12 @@ class _CommentListState extends State<CommentList> {
     });
   }
 
+  Future getSecondaryCommentList(id, page) async {
+    Map<String, dynamic> data = await PxzRequest().get("/rescue/get_subcomment",
+        data: {"comment_id": id, "limit": 10, "page": page});
+    return data["data"]["items"];
+  }
+
   @override
   void initState() {
     super.initState();
@@ -311,99 +339,132 @@ class _CommentListState extends State<CommentList> {
         sliver: _commentItems == null
             ? SizedBox.shrink()
             : SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                        (BuildContext context, int index) {
-                  CommentItem item = _commentItems[index];
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Padding(
-                              padding: EdgeInsets.only(right: 10),
-                              child: CircleAvatar(
-                                radius: 18,
-                                backgroundImage:
-                                    NetworkImage(item.memberDetail.avatar),
+                delegate: SliverChildBuilderDelegate(
+                    (BuildContext context, int index) {
+                CommentItem item = _commentItems[index];
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    index == 0
+                        ? Padding(
+                            padding: EdgeInsets.fromLTRB(0, 0, 0, 20),
+                            child: Text(
+                              "共有 ${_commentItems.length}条 评论",
+                              style: TextStyle(color: Color(0xff7F7F7F)),
+                            ),
+                          )
+                        : SizedBox.shrink(),
+                    Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Padding(
+                            padding: EdgeInsets.only(right: 10),
+                            child: CircleAvatar(
+                              radius: 18,
+                              backgroundImage:
+                                  NetworkImage(item.memberDetail.avatar),
+                            ),
+                          ),
+                          Expanded(
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Text(item.memberDetail.nickname),
+                                  RichText(
+                                      textAlign: TextAlign.start,
+                                      text: TextSpan(
+                                          style: DefaultTextStyle.of(context)
+                                              .style,
+                                          text: item.content,
+                                          children: <TextSpan>[
+                                            TextSpan(
+                                                text: "  昨天 23:05",
+                                                style: TextStyle(
+                                                    color: Colors.grey,
+                                                    fontSize: 12))
+                                          ]))
+                                ]),
+                          ),
+                          Column(
+                            children: <Widget>[
+                              GestureDetector(
+                                  onTap: () {},
+                                  child: Icon(
+                                    Icons.favorite_border,
+                                    size: 20,
+                                    color: Colors.grey,
+                                  )),
+                              Text(
+                                "1151",
+                                style:
+                                    TextStyle(fontSize: 10, color: Colors.grey),
                               ),
-                            ),
-                            Expanded(
-                              child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    Text(item.memberDetail.nickname),
-                                    RichText(
-                                        textAlign: TextAlign.start,
-                                        text: TextSpan(
-                                            style: DefaultTextStyle.of(context)
-                                                .style,
-                                            text: item.content,
-                                            children: <TextSpan>[
-                                              TextSpan(
-                                                  text: "  昨天 23:05",
-                                                  style: TextStyle(
-                                                      color: Colors.grey,
-                                                      fontSize: 12))
-                                            ]))
-                                  ]),
-                            ),
-                            Column(
-                              children: <Widget>[
-                                GestureDetector(
-                                    onTap: () {},
-                                    child: Icon(
-                                      Icons.favorite_border,
-                                      size: 20,
-                                      color: Colors.grey,
-                                    )),
-                                Text(
-                                  "1151",
-                                  style: TextStyle(
-                                      fontSize: 10, color: Colors.grey),
-                                ),
-                              ],
-                            )
-                          ]),
-                      Container(
-                        padding: EdgeInsets.fromLTRB(50, 10, 0, 0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            ListView.builder(
-                              shrinkWrap: true,
-                              physics: NeverScrollableScrollPhysics(),
-                              itemCount: item.commentItemChildrens.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                return CommentChildItem(
-                                    item.commentItemChildrens[index]);
-                              },
-                            ),
-                            item.childrenCount > 0
-                                ? FlatButton(
-                                    onPressed: null,
-                                    child: Text(
-                                      "展开${item.childrenCount - item.commentItemChildrens.length}条回复",
-                                      style: TextStyle(
-                                          color: Colors.blue, fontSize: 12),
-                                    ))
-                                : SizedBox.shrink(),
-                          ],
-                        ),
+                            ],
+                          )
+                        ]),
+                    Container(
+                      padding: EdgeInsets.fromLTRB(50, 10, 0, 0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: item.commentItemChildrens.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return CommentChildItem(
+                                  item.commentItemChildrens[index]);
+                            },
+                          ),
+                          item.childrenCount > 0 &&
+                                  item.childrenCount -
+                                          item.commentItemChildrens.length >
+                                      0
+                              ? FlatButton(
+                                  onPressed: () {
+                                    if (item.commentItemChildrens.length % 10 ==
+                                            0 ||
+                                        item.commentItemChildrens.length == 1) {
+                                      if (item.commentItemChildrens.length ==
+                                          1) {
+                                        getSecondaryCommentList(item.id, 1)
+                                            .then((value) {
+                                          setState(() {
+                                            item.commentItemChildrens = [];
+                                            List newData = value;
+                                            newData.forEach((element) {
+                                              CommentItemChildrens newItem =
+                                                  CommentItemChildrens.fromJson(
+                                                      element);
+                                              item.commentItemChildrens
+                                                  .add(newItem);
+                                            });
+                                          });
+                                        });
+                                      }
+                                    }
+                                  },
+                                  child: Text(
+                                    "展开${item.childrenCount - item.commentItemChildrens.length}条回复",
+                                    style: TextStyle(
+                                        color: Colors.blue, fontSize: 12),
+                                  ))
+                              : SizedBox.shrink(),
+                        ],
                       ),
-                      index == _commentItems.length - 1
-                          ? SizedBox.shrink()
-                          : Padding(
-                              padding: EdgeInsets.only(left: 50),
-                              child: Divider(
-                                height: 30,
-                                color: Color(0xffdddddd),
-                              ),
-                            )
-                    ],
-                  );
-                }, childCount: _commentItems.length))
-    );
+                    ),
+                    index == _commentItems.length - 1
+                        ? SizedBox.shrink()
+                        : Padding(
+                            padding: EdgeInsets.only(left: 50),
+                            child: Divider(
+                              height: 30,
+                              color: Color(0xffdddddd),
+                            ),
+                          )
+                  ],
+                );
+              }, childCount: _commentItems.length)));
   }
 }
 

@@ -99,7 +99,7 @@ class Resources {
 	Resources.fromJson(Map<String, dynamic> json) {
 		url = json['url'];
 		type = json['type'];
-		whextends = json['extends'] != null ? new Extends.fromJson(json['extends']) : null;
+		whextends = json['extends'] != null && json['extends'].length != 0? new Extends.fromJson(json['extends']) : null;
 	}
 
 	Map<String, dynamic> toJson() {

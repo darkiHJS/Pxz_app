@@ -2,11 +2,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
-import 'package:hello_world/pages/home/DetailsArticle.dart';
 import 'package:hello_world/utils/Request.dart';
 
-// 详情页路由
-import './DiscoveryItem.dart';
+/// 详情页路由
+/// 文章
+/// 视频
+import 'package:hello_world/pages/home/DetailsArticle.dart';
+import 'package:hello_world/pages/home/DetailsVideo.dart';
 
 class DiscoveryPage extends StatefulWidget {
   DiscoveryPage({Key key}) : super(key: key);
@@ -142,7 +144,7 @@ class ProgramItem extends StatelessWidget {
           GestureDetector(
             onTap: () {
               if (discoveryDataItem.resources[0].type == "video") {
-                Navigator.push(context, MaterialPageRoute(builder:(context) => DiscoveryItemPage(itemId: discoveryDataItem.id)));
+                Navigator.push(context, MaterialPageRoute(builder:(context) => DetailsVideoPage(id: discoveryDataItem.id)));
               } else {
                 Navigator.push(context, MaterialPageRoute(builder:(context) => DetailsArticlePage(id: discoveryDataItem.id,)));              
               }
@@ -166,7 +168,7 @@ class ProgramItem extends StatelessWidget {
                       color: Colors.black26,
                       borderRadius: BorderRadius.all(Radius.circular(25)),
                     ),
-                    child: Icon(Icons.play_circle_outline, color: Colors.white, size: 25,),
+                    child: Icon(Icons.play_arrow, color: Colors.white, size: 25,),
                   ) 
                 ) : 
                 SizedBox.shrink() 
