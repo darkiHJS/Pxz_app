@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hello_world/pages/user/UserDrawer.dart';
 
 import './home/Home.dart';
 import './adopt/Adopt.dart';
@@ -41,6 +42,7 @@ class _NavigationState extends State<Navigation> {
                   elevation: 0.0,
                 ),
                 preferredSize: Size.fromHeight(0)),
+            endDrawer: UserDrawer(),
             body: this._pageList[this._currentIndex],
             floatingActionButton: Container(
               width: 72,

@@ -67,6 +67,17 @@ flutter:
     - assets/home/loading.png
     - assets/test_video.mp4
     - assets/details/details_loading.gif
+    - assets/user/user-fn-fb.png
+    - assets/user/user-fn-collect.png
+    - assets/user/user-fn-whome.png
+    - assets/user/user-fn-ly.png
+    - assets/user/user-fn-rz.png
+    - assets/user/user-dw-order.png
+    - assets/user/user-dw-position.png
+    - assets/user/user-dw-aq.png
+    - assets/user/user-dw-opinion.png
+    - assets/user/user-dw-about.png
+    - assets/user/user-dw-logout.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
@@ -79,12 +90,10 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
+  fonts:
+    - family: iconfont
+      fonts:
+        - asset: assets/iconfont/iconfont.ttf
   #   - family: Trajan Pro
   #     fonts:
   #       - asset: fonts/TrajanPro.ttf
