@@ -207,7 +207,7 @@ class ProgramItem extends StatelessWidget {
                   child: IconButton(
                       icon: Icon(
                         Icons.favorite,
-                        color: Colors.yellow,
+                        color: Color(0xfff3d72f),
                         size: 15,
                       ),
                       onPressed: null),

@@ -169,7 +169,7 @@ class _ProgramItemState extends State<ProgramItem> {
                 Expanded(child: Text("")),
                 FlatButton.icon(
                   padding: EdgeInsets.zero,
-                  icon: Icon(Icons.favorite, color: Colors.yellow, size: 15,), 
+                  icon: Icon(Icons.favorite, color: Color(0xfff3d72f), size: 15,), 
                   label: Text("1113", style: TextStyle(fontSize: 10),),
                   onPressed: null
                 )

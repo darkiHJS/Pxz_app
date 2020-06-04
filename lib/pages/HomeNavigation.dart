@@ -33,8 +33,7 @@ class _NavigationState extends State<Navigation> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        child: Scaffold(
+    return Scaffold(
             appBar: PreferredSize(
                 child: AppBar(
                   brightness: Brightness.light,
@@ -64,7 +63,7 @@ class _NavigationState extends State<Navigation> {
             bottomNavigationBar: NavigationBar(
               currentIndex: _currentIndex,
               changeIndex: changeIndex,
-            )));
+            ));
   }
 }
 

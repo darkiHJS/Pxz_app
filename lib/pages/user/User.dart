@@ -195,7 +195,7 @@ class UserInfoCompnent extends StatelessWidget {
                       builder: (BuildContext context) => UserEditPage()
                     ));
                   },
-                  color: Colors.yellow,
+                  color: Color(0xfff3d72f),
                   child: Text("编辑信息"),
                 ))
           ],

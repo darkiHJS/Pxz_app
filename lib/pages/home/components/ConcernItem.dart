@@ -183,7 +183,7 @@ class _AttentionButtonState extends State<AttentionButton> {
             });
           },
           padding: EdgeInsets.zero,
-          color: _isAttention ? Color(0xffe0e0e0) : Colors.yellow,
+          color: _isAttention ? Color(0xffe0e0e0) : Color(0xfff3d72f),
           child: Text(
             _isAttention ? "已关注" : "关注",
             style: TextStyle(color: Color(0xff585858)),
@@ -217,7 +217,7 @@ class _LikeButtonState extends State<LikeButton> {
           child: FlatButton.icon(
             padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
             icon: _isLike
-                ? Icon(Icons.favorite, color: Colors.yellow)
+                ? Icon(Icons.favorite, color: Color(0xfff3d72f))
                 : Icon(Icons.favorite_border, color: Color(0xff949494)),
             label: Text("$_likeNum", style: TextStyle(color: Color(0xff949494))),
             onPressed: () {
