@@ -39,6 +39,7 @@ class _NavigationState extends State<Navigation> {
                   brightness: Brightness.light,
                   backgroundColor: Colors.transparent,
                   elevation: 0.0,
+                  actions: [Container()],
                 ),
                 preferredSize: Size.fromHeight(0)),
             endDrawer: UserDrawer(),

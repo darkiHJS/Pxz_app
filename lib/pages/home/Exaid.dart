@@ -25,6 +25,7 @@ class _ExaidPageState extends State<ExaidPage> {
             floating: false,
             snap: false,
             pinned: false,
+            actions: [Container()],
             flexibleSpace: FlexibleSpaceBar(
                 // centerTitle: true,
                 title: Text(""),

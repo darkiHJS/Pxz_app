@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hello_world/pages/user/UserSafety.dart';
 
 class UserDrawer extends StatelessWidget {
   const UserDrawer({Key key}) : super(key: key);
@@ -20,7 +21,7 @@ class UserDrawer extends StatelessWidget {
             leading: Image.asset("assets/user/user-dw-order.png", width: 30, height: 30,),
             title: Row(
               children: <Widget>[
-                Expanded(child: Text("我的订单")),
+                Expanded(child: Text("我的订单(未开放)", style: TextStyle(color: Colors.grey),)),
                 Icon(Icons.arrow_forward_ios)
               ],
             ),
@@ -34,13 +35,17 @@ class UserDrawer extends StatelessWidget {
                 Icon(Icons.arrow_forward_ios)
               ],
             ),
-            onTap: () {},
+            onTap: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                      builder: (BuildContext context) => UserSafetyPage()
+                    ));
+            },
           ),
           ListTile(
             leading: Image.asset("assets/user/user-dw-position.png", width: 30, height: 30,),
             title: Row(
               children: <Widget>[
-                Expanded(child: Text("地址管理")),
+                Expanded(child: Text("地址管理(未开放)", style: TextStyle(color: Colors.grey),)),
                 Icon(Icons.arrow_forward_ios)
               ],
             ),

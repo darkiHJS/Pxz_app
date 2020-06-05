@@ -42,6 +42,7 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
           expandedHeight: 190.0,
           backgroundColor: Colors.transparent,
           flexibleSpace: FlexibleSpaceBar(background: NekoSwiper()),
+          actions: <Widget>[Container()],
         ),
         SliverPadding(
           padding: EdgeInsets.all(5),
