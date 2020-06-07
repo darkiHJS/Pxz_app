@@ -42,6 +42,7 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
           expandedHeight: 190.0,
           backgroundColor: Colors.transparent,
           flexibleSpace: FlexibleSpaceBar(background: NekoSwiper()),
+          actions: <Widget>[Container()],
         ),
         SliverPadding(
           padding: EdgeInsets.all(5),
@@ -143,7 +144,7 @@ class ProgramItem extends StatelessWidget {
         children: <Widget>[
           GestureDetector(
             onTap: () {
-              if (discoveryDataItem.resources[0].type == "video") {
+              if (discoveryDataItem.resourceType == "video") {
                 Navigator.push(context, MaterialPageRoute(builder:(context) => DetailsVideoPage(id: discoveryDataItem.id)));
               } else {
                 Navigator.push(context, MaterialPageRoute(builder:(context) => DetailsArticlePage(id: discoveryDataItem.id,)));              
@@ -153,13 +154,13 @@ class ProgramItem extends StatelessWidget {
               children: <Widget>[
                 ClipRRect(
                 borderRadius: BorderRadius.vertical(top: Radius.circular(3)),
-                child: discoveryDataItem.resources.length > 0
+                child: discoveryDataItem.mainDefaultId != null
                     ? CachedNetworkImage (
                       placeholder: (context, url) => Image.asset("assets/home/loading.png"),
                       imageUrl: discoveryDataItem.mainDefaultId,
                     ) 
                     : Image.asset("assets/home/loading.png")),
-                discoveryDataItem.resources[0].type == "video" ?  
+                discoveryDataItem.resourceType == "video" ?  
                 Positioned(
                   right: 5,
                   bottom: 5,
@@ -207,7 +208,7 @@ class ProgramItem extends StatelessWidget {
                   child: IconButton(
                       icon: Icon(
                         Icons.favorite,
-                        color: Colors.yellow,
+                        color: Color(0xfff3d72f),
                         size: 15,
                       ),
                       onPressed: null),
@@ -232,20 +233,20 @@ class DiscoveryDataItem {
   String title;
   String likeNum;
   String mainDefaultId;
+  String resourceType;
   MemberDetail memberDetail;
-  List<Resource> resources;
   DiscoveryDataItem(
-      {this.id, this.title, this.likeNum, this.mainDefaultId, this.memberDetail, this.resources});
+      {this.id, this.title, this.likeNum, this.mainDefaultId, this.memberDetail, this.resourceType});
 
   factory DiscoveryDataItem.fromJson(Map<String, dynamic> parsedJson) {
-    List<dynamic> resources = parsedJson["resources"] as List;
     return DiscoveryDataItem(
         id: parsedJson["id"],
         title: parsedJson["title"],
         likeNum: parsedJson["like_num"],
         mainDefaultId: parsedJson["main_default_id"],
+        resourceType: parsedJson["resource_type"],
         memberDetail: MemberDetail.fromJson(parsedJson["member_detail"]),
-        resources: resources.map((e) => Resource.fromJson(e)).toList());
+      );
   }
 }
 
@@ -261,16 +262,5 @@ class MemberDetail {
         id: parsedJson["id"],
         avatar: parsedJson["avatar"],
         nickname: parsedJson["nickname"]);
-  }
-}
-
-class Resource {
-  String url;
-  String type;
-
-  Resource({this.url, this.type});
-
-  factory Resource.fromJson(Map<String, dynamic> parsedJson) {
-    return Resource(url: parsedJson["url"], type: parsedJson["type"]);
   }
 }

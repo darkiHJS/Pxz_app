@@ -96,12 +96,12 @@ class _DetailsArticlePageState extends State<DetailsArticlePage> {
                               child: OutlineButton(
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(25)),
-                                borderSide: BorderSide(color: Colors.yellow),
+                                borderSide: BorderSide(color: Color(0xfff3d72f)),
                                 padding: EdgeInsets.zero,
                                 child: Text(
                                   "关注",
                                   style: TextStyle(
-                                      fontSize: 12, color: Colors.yellow),
+                                      fontSize: 12, color: Color(0xfff3d72f)),
                                 ),
                                 onPressed: () {},
                               ),
@@ -169,7 +169,7 @@ class _DetailsArticlePageState extends State<DetailsArticlePage> {
                                   pagination: SwiperPagination(
                                       builder: DotSwiperPaginationBuilder(
                                     color: Color(0xffdfdfdf),
-                                    activeColor: Colors.yellow,
+                                    activeColor: Color(0xfff3d72f),
                                     size: 5,
                                     activeSize: 7,
                                   )))),

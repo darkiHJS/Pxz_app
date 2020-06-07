@@ -230,7 +230,7 @@ class _AttentionButtonState extends State<AttentionButton> {
             });
           },
           padding: EdgeInsets.zero,
-          color: _isAttention ? Color(0xffe0e0e0) : Colors.yellow,
+          color: _isAttention ? Color(0xffe0e0e0) : Color(0xfff3d72f),
           child: Text(
             _isAttention ? "已关注" : "关注",
             style: TextStyle(color: Color(0xff585858)),
@@ -263,7 +263,7 @@ class VideoComponent extends StatelessWidget {
                 videoUrl,
                 videoStyle: VideoStyle(
                     videoControlBarStyle:
-                        VideoControlBarStyle(backgroundColor: Colors.yellow)),
+                        VideoControlBarStyle(backgroundColor: Color(0xfff3d72f))),
               )
             : null,
       ),

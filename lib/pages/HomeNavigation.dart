@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hello_world/pages/user/UserDrawer.dart';
 
 import './home/Home.dart';
 import './adopt/Adopt.dart';
@@ -32,15 +33,16 @@ class _NavigationState extends State<Navigation> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        child: Scaffold(
+    return Scaffold(
             appBar: PreferredSize(
                 child: AppBar(
                   brightness: Brightness.light,
                   backgroundColor: Colors.transparent,
                   elevation: 0.0,
+                  actions: [Container()],
                 ),
                 preferredSize: Size.fromHeight(0)),
+            endDrawer: UserDrawer(),
             body: this._pageList[this._currentIndex],
             floatingActionButton: Container(
               width: 72,
@@ -62,7 +64,7 @@ class _NavigationState extends State<Navigation> {
             bottomNavigationBar: NavigationBar(
               currentIndex: _currentIndex,
               changeIndex: changeIndex,
-            )));
+            ));
   }
 }
 
