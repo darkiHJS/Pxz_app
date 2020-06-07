@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 
-import 'UserChangePhome2.dart';
-
-class UserChangePhomePage extends StatefulWidget {
-  UserChangePhomePage({Key key}) : super(key: key);
+class UserChangePhomePage2 extends StatefulWidget {
+  UserChangePhomePage2({Key key}) : super(key: key);
 
   @override
   _UserChangePhomePageState createState() => _UserChangePhomePageState();
 }
 
-class _UserChangePhomePageState extends State<UserChangePhomePage> {
+class _UserChangePhomePageState extends State<UserChangePhomePage2> {
   FocusNode _oldPhome = FocusNode();
 
   @override
@@ -25,7 +23,7 @@ class _UserChangePhomePageState extends State<UserChangePhomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("修改手机号")),
+      appBar: AppBar(title: Text("填写新手机")),
       backgroundColor: Color(0xffededed),
       body: SingleChildScrollView(
         child: Container(
@@ -42,7 +40,7 @@ class _UserChangePhomePageState extends State<UserChangePhomePage> {
                 children: <Widget>[
                   SizedBox(
                       width: 80,
-                      child: Text("原手机号",
+                      child: Text("新手机号",
                           style: TextStyle(color: Color(0xff606060)))),
                   Expanded(
                     child: TextField(
@@ -85,21 +83,13 @@ class _UserChangePhomePageState extends State<UserChangePhomePage> {
             SizedBox(
               height: 20,
             ),
-            Text("如果原手机号无法接受短信，请联系客服。"),
-            SizedBox(
-              height: 20,
-            ),
             SizedBox(
               width: double.infinity,
               height: 40,
               child: FlatButton(
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (BuildContext context) => UserChangePhomePage2()
-                    ));
-                  },
+                  onPressed: () {},
                   color: Color(0xfff3d72f),
-                  child: Text("下一步", style: TextStyle(color: Colors.white))),
+                  child: Text("修改手机", style: TextStyle(color: Colors.white))),
             )
           ],
         ),

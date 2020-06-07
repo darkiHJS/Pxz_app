@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_world/components/IconFont.dart';
 import 'package:hello_world/pages/user/UserEdit.dart';
+import 'package:hello_world/pages/user/UserRelease.dart';
 
 class UserPage extends StatelessWidget {
   const UserPage({Key key}) : super(key: key);
@@ -14,7 +15,7 @@ class UserPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Container(
-              height: 180,
+              height: 170,
               child: Stack(fit: StackFit.expand, children: <Widget>[
                 Positioned(top: 0, left: 0, right: 0, child: BarkgroundWall()),
                 Positioned(top: 80, left: 20, child: UserAvatar()),
@@ -49,7 +50,7 @@ class BarkgroundWall extends StatelessWidget {
         child: CachedNetworkImage(
           imageUrl: "http://img.wmtp.com/file/tu/20191210/001k1blpvqx.jpg",
           imageBuilder: (context, imageProvider) => Container(
-            height: 180,
+            height: 170,
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: imageProvider,
@@ -225,12 +226,16 @@ class FunctionBox extends StatelessWidget {
             ),
           ),
           Container(
-              height: 200,
+              height: 170,
               child: GridView(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 4),
                 children: <Widget>[
-                  Container(
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (BuildContext context) => UserReleasePage()));
+                    },
                     child: Column(
                       children: <Widget>[
                         Container(
@@ -288,7 +293,7 @@ class FunctionBox extends StatelessWidget {
                           child: Image.asset("assets/user/user-fn-ly.png"),
                         ),
                         Text(
-                          "我的爪窝",
+                          "我的领养",
                           style: TextStyle(fontSize: 12),
                         )
                       ],
@@ -304,7 +309,7 @@ class FunctionBox extends StatelessWidget {
                           child: Image.asset("assets/user/user-fn-rz.png"),
                         ),
                         Text(
-                          "我的爪窝",
+                          "我的认证",
                           style: TextStyle(fontSize: 12),
                         )
                       ],
