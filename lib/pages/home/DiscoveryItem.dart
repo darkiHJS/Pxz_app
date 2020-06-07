@@ -165,7 +165,7 @@ class _DiscoverItemPageState extends State<DiscoveryItemPage> {
                           Icons.play_arrow,
                           color: Colors.white,
                           size: 30,
-                        ),
+                        ),  
                         onPressed: null),
                     Expanded(child: Text("")),
                     FlatButton.icon(
