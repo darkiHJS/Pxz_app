@@ -1,8 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_world/components/IconFont.dart';
+import 'package:hello_world/pages/user/UserAdopt.dart';
+import 'package:hello_world/pages/user/UserCertificate.dart';
+import 'package:hello_world/pages/user/UserCollection.dart';
 import 'package:hello_world/pages/user/UserEdit.dart';
 import 'package:hello_world/pages/user/UserRelease.dart';
+
+import 'UserClawHome.dart';
 
 class UserPage extends StatelessWidget {
   const UserPage({Key key}) : super(key: key);
@@ -22,13 +27,15 @@ class UserPage extends StatelessWidget {
                 Positioned(
                     top: 10,
                     right: 10,
-                    child:
-                        IconButton(
-                          icon: Icon(Icons.subject, color: Colors.white, size: 30,), 
-                          onPressed: () {
-                            Scaffold.of(context).openEndDrawer();
-                          }
-                        ))
+                    child: IconButton(
+                        icon: Icon(
+                          Icons.subject,
+                          color: Colors.white,
+                          size: 30,
+                        ),
+                        onPressed: () {
+                          Scaffold.of(context).openEndDrawer();
+                        }))
               ]),
             ),
             UserInfoCompnent(),
@@ -193,8 +200,7 @@ class UserInfoCompnent extends StatelessWidget {
                 child: FlatButton(
                   onPressed: () {
                     Navigator.of(context).push(MaterialPageRoute(
-                      builder: (BuildContext context) => UserEditPage()
-                    ));
+                        builder: (BuildContext context) => UserEditPage()));
                   },
                   color: Color(0xfff3d72f),
                   child: Text("编辑信息"),
@@ -226,7 +232,7 @@ class FunctionBox extends StatelessWidget {
             ),
           ),
           Container(
-              height: 170,
+              height: 200,
               child: GridView(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 4),
@@ -234,7 +240,8 @@ class FunctionBox extends StatelessWidget {
                   GestureDetector(
                     onTap: () {
                       Navigator.of(context).push(MaterialPageRoute(
-                        builder: (BuildContext context) => UserReleasePage()));
+                          builder: (BuildContext context) =>
+                              UserReleasePage()));
                     },
                     child: Column(
                       children: <Widget>[
@@ -251,7 +258,12 @@ class FunctionBox extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Container(
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (BuildContext context) =>
+                              UserCollectionPage()));
+                    },
                     child: Column(
                       children: <Widget>[
                         Container(
@@ -267,7 +279,12 @@ class FunctionBox extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Container(
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (BuildContext context) =>
+                              UserClawHomePage()));
+                    },
                     child: Column(
                       children: <Widget>[
                         Container(
@@ -283,7 +300,12 @@ class FunctionBox extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Container(
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (BuildContext context) =>
+                              UserAdoptPage()));
+                    },
                     child: Column(
                       children: <Widget>[
                         Container(
@@ -299,7 +321,12 @@ class FunctionBox extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Container(
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (BuildContext context) =>
+                              UserCertificatePage()));
+                    },
                     child: Column(
                       children: <Widget>[
                         Container(

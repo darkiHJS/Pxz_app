@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:hello_world/pages/user/UserReleaseHoming.dart';
-import 'package:hello_world/pages/user/UserReleaseWorks.dart';
+import 'package:hello_world/pages/user/UserCollectionHoming.dart';
+import 'package:hello_world/pages/user/UserCollectionWorks.dart';
 
-class UserReleasePage extends StatefulWidget {
-  UserReleasePage({Key key}) : super(key: key);
+class UserCollectionPage extends StatefulWidget {
+  UserCollectionPage({Key key}) : super(key: key);
 
   @override
-  _UserReleasePageState createState() => _UserReleasePageState();
+  _UserCollectionPageState createState() => _UserCollectionPageState();
 }
 
-class _UserReleasePageState extends State<UserReleasePage>
+class _UserCollectionPageState extends State<UserCollectionPage>
     with SingleTickerProviderStateMixin {
   final List<Tab> tabTitleList = <Tab>[
     Tab(text: "作品"),
@@ -34,7 +34,7 @@ class _UserReleasePageState extends State<UserReleasePage>
   Widget build(BuildContext context) {
     return Container(
       child: Scaffold(
-        appBar: AppBar(title: Text("我的发布")),
+        appBar: AppBar(title: Text("我的收藏")),
         body: Container(
             child: Column(
           children: <Widget>[
@@ -49,8 +49,8 @@ class _UserReleasePageState extends State<UserReleasePage>
               child: TabBarView(
                 controller: _tabController,
                 children: <Widget>[
-                  UserReleaseWorksPage(),
-                  UserReleaseHomingPage()
+                  UserCollectionWorksPage(),
+                  UserCollectionHomingPage()
                 ],)
             )
           ],
