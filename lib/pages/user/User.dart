@@ -248,7 +248,7 @@ class FunctionBox extends StatelessWidget {
                         Container(
                           width: 60,
                           height: 50,
-                          padding: EdgeInsets.fromLTRB(5, 5, 10, 0),
+                          padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
                           child: Image.asset("assets/user/user-fn-fb.png"),
                         ),
                         Text(
