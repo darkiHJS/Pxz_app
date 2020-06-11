@@ -2,6 +2,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:hello_world/components/IconFont.dart';
+import 'package:hello_world/pages/adopt/AdoptBlackList.dart';
+import 'package:hello_world/pages/adopt/AdoptLicense.dart';
+import 'package:hello_world/pages/adopt/AdoptSongYangForm.dart';
 import 'package:hello_world/pages/user/components/PetHomingItem.dart';
 
 class AdoptPage extends StatefulWidget {
@@ -11,14 +14,17 @@ class AdoptPage extends StatefulWidget {
   _AdoptPageState createState() => _AdoptPageState();
 }
 
-class _AdoptPageState extends State<AdoptPage> with SingleTickerProviderStateMixin {
+class _AdoptPageState extends State<AdoptPage>
+    with SingleTickerProviderStateMixin {
   TabController tabController;
 
   @override
   void initState() {
     this.tabController = TabController(length: 2, vsync: this);
+    
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
@@ -41,6 +47,11 @@ class _AdoptPageState extends State<AdoptPage> with SingleTickerProviderStateMix
             alignment: WrapAlignment.spaceAround,
             children: <Widget>[
               GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (BuildContext context) =>
+                          AdoptSongYangFormPage()));
+                },
                 child: Column(
                   children: <Widget>[
                     Container(
@@ -48,14 +59,21 @@ class _AdoptPageState extends State<AdoptPage> with SingleTickerProviderStateMix
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: Color(0xff41bcba),
-                        borderRadius: BorderRadius.circular(4)
-                      ),
+                          color: Color(0xff41bcba),
+                          borderRadius: BorderRadius.circular(4)),
                       child: Center(
-                        child: Icon(IconFont.songyang, color: Colors.white, size: 22,),
+                        child: Icon(
+                          IconFont.songyang,
+                          color: Colors.white,
+                          size: 22,
+                        ),
                       ),
                     ),
-                    Text("发布送养", style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold), )
+                    Text(
+                      "发布送养",
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    )
                   ],
                 ),
               ),
@@ -67,18 +85,29 @@ class _AdoptPageState extends State<AdoptPage> with SingleTickerProviderStateMix
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: Color(0xfff4bc61),
-                        borderRadius: BorderRadius.circular(4)
-                      ),
+                          color: Color(0xfff4bc61),
+                          borderRadius: BorderRadius.circular(4)),
                       child: Center(
-                        child: Icon(IconFont.lingyangshengqing, color: Colors.white, size: 20,),
+                        child: Icon(
+                          IconFont.lingyangshengqing,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                       ),
                     ),
-                    Text("领养申请", style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold), )
+                    Text(
+                      "领养申请",
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    )
                   ],
                 ),
               ),
               GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (BuildContext context) => AdoptLicensePage()));
+                },
                 child: Column(
                   children: <Widget>[
                     Container(
@@ -86,18 +115,28 @@ class _AdoptPageState extends State<AdoptPage> with SingleTickerProviderStateMix
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: Color(0xff5d79bb),
-                        borderRadius: BorderRadius.circular(4)
-                      ),
+                          color: Color(0xff5d79bb),
+                          borderRadius: BorderRadius.circular(4)),
                       child: Center(
-                        child: Icon(IconFont.jiuzhujidi, color: Colors.white,),
+                        child: Icon(
+                          IconFont.jiuzhujidi,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                    Text("救助基地", style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold), )
+                    Text(
+                      "救助基地",
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    )
                   ],
                 ),
               ),
               GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (BuildContext context) => AdoptBlackListPage()));
+                },
                 child: Column(
                   children: <Widget>[
                     Container(
@@ -105,14 +144,21 @@ class _AdoptPageState extends State<AdoptPage> with SingleTickerProviderStateMix
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: Color(0xff4596d1),
-                        borderRadius: BorderRadius.circular(4)
-                      ),
+                          color: Color(0xff4596d1),
+                          borderRadius: BorderRadius.circular(4)),
                       child: Center(
-                        child: Icon(IconFont.heimindan, color: Colors.white, size: 19,),
+                        child: Icon(
+                          IconFont.heimindan,
+                          color: Colors.white,
+                          size: 19,
+                        ),
                       ),
                     ),
-                    Text("黑名单查询", style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold), )
+                    Text(
+                      "黑名单查询",
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    )
                   ],
                 ),
               ),
@@ -120,31 +166,32 @@ class _AdoptPageState extends State<AdoptPage> with SingleTickerProviderStateMix
           ),
         )),
         SliverPersistentHeader(
-          pinned: true,
-          delegate: _SliverAppBarDelegate(
-            minHeight: 40, 
-            maxHeight: 40, 
-            child: Container(
-              color: Color(0xffedecec),
-              child:Row(
-              children: <Widget>[
-                FlatButton.icon(
-                  onPressed: (){}, 
-                  icon: Icon(IconFont.dingwei), 
-                  label: Text("上海市")),
-                Expanded(child: SizedBox.expand()),
-                FlatButton(
-                  onPressed: (){},
-                  child: Text("筛选更多", style: TextStyle(color: Colors.blue),),
-                )
-              ], 
-            ))
-          )
-        ),
-        SliverList(
-          delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
-            return PetHommingItem();
-          }))
+            pinned: true,
+            delegate: _SliverAppBarDelegate(
+                minHeight: 40,
+                maxHeight: 40,
+                child: Container(
+                    color: Color(0xffedecec),
+                    child: Row(
+                      children: <Widget>[
+                        FlatButton.icon(
+                            onPressed: () {},
+                            icon: Icon(IconFont.dingwei),
+                            label: Text("上海市")),
+                        Expanded(child: SizedBox.expand()),
+                        FlatButton(
+                          onPressed: () {},
+                          child: Text(
+                            "筛选更多",
+                            style: TextStyle(color: Colors.blue),
+                          ),
+                        )
+                      ],
+                    )))),
+        SliverList(delegate:
+            SliverChildBuilderDelegate((BuildContext context, int index) {
+          return PetHommingItem();
+        }))
       ],
     );
   }
@@ -209,7 +256,6 @@ class NekoSwiper extends StatelessWidget {
 }
 
 class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
-
   _SliverAppBarDelegate({
     @required this.minHeight,
     @required this.maxHeight,
