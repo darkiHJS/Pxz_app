@@ -4,6 +4,8 @@ import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:hello_world/components/IconFont.dart';
 import 'package:hello_world/pages/adopt/AdoptBlackList.dart';
 import 'package:hello_world/pages/adopt/AdoptLicense.dart';
+import 'package:hello_world/pages/adopt/AdoptLingYangForm.dart';
+import 'package:hello_world/pages/adopt/AdoptNotice.dart';
 import 'package:hello_world/pages/adopt/AdoptSongYangForm.dart';
 import 'package:hello_world/pages/user/components/PetHomingItem.dart';
 
@@ -18,11 +20,31 @@ class _AdoptPageState extends State<AdoptPage>
     with SingleTickerProviderStateMixin {
   TabController tabController;
 
+  void _showDialog() async {
+    await Future.delayed(Duration(microseconds: 50));
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: AdoptNoticePage(),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     this.tabController = TabController(length: 2, vsync: this);
-    
     super.initState();
+    _showDialog();
   }
 
   @override
@@ -78,6 +100,11 @@ class _AdoptPageState extends State<AdoptPage>
                 ),
               ),
               GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (BuildContext context) =>
+                          AdoptLingYangFormPage()));
+                },
                 child: Column(
                   children: <Widget>[
                     Container(
