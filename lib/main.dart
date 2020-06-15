@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:hello_world/models/UserState.dart';
+import 'package:provider/provider.dart';
 import './pages/HomeNavigation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -20,7 +22,12 @@ class MyApp extends StatelessWidget {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);
-    return MaterialApp(
+    return 
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => UserState())
+        ],
+        child: MaterialApp(
         title: 'Material App',
         theme: ThemeData(
           brightness: Brightness.light,
@@ -33,6 +40,6 @@ class MyApp extends StatelessWidget {
           GlobalWidgetsLocalizations.delegate,
         ],
         supportedLocales: [const Locale("zh", "CH"), const Locale("en", "US")],
-        home: Navigation());
+        home: Navigation()));
   }
 }

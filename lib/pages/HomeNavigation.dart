@@ -25,6 +25,11 @@ class _NavigationState extends State<Navigation> {
     UserPage(),
   ];
 
+  @override
+  void initState() { 
+    super.initState();
+  }
+
   changeIndex(index) {
     setState(() {
       _currentIndex = index;
