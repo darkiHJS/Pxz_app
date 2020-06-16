@@ -6,15 +6,36 @@ import 'package:hello_world/pages/user/UserCertificate.dart';
 import 'package:hello_world/pages/user/UserCollection.dart';
 import 'package:hello_world/pages/user/UserEdit.dart';
 import 'package:hello_world/pages/user/UserRelease.dart';
+import 'package:hello_world/utils/Request.dart';
 
 import 'UserClawHome.dart';
 
-class UserPage extends StatelessWidget {
-  const UserPage({Key key}) : super(key: key);
+class UserPage extends StatefulWidget {
+  UserPage({Key key}) : super(key: key);
 
   @override
+  _UserPageState createState() => _UserPageState();
+}
+
+class _UserPageState extends State<UserPage> {
+  UserInfo _userInfo ;
+  @override
+  void initState() {
+    PxzRequest().get("/member/index").then((d){
+      setState(() {
+        print(d);
+        _userInfo = UserInfo.fromJson(d["data"]);
+        print(_userInfo.avatar);
+      });
+    });
+    super.initState();
+  }
+  @override
   Widget build(BuildContext context) {
-    return Container(
+    return 
+      _userInfo == null ?
+      Container() : 
+      Container(
         height: double.infinity,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -23,7 +44,7 @@ class UserPage extends StatelessWidget {
               height: 170,
               child: Stack(fit: StackFit.expand, children: <Widget>[
                 Positioned(top: 0, left: 0, right: 0, child: BarkgroundWall()),
-                Positioned(top: 80, left: 20, child: UserAvatar()),
+                Positioned(top: 80, left: 20, child: UserAvatar(avatar: _userInfo.avatar,)),
                 Positioned(
                     top: 10,
                     right: 10,
@@ -97,8 +118,9 @@ class ButtomClipper extends CustomClipper<Path> {
 
 /// 用户头像
 class UserAvatar extends StatelessWidget {
-  const UserAvatar({Key key}) : super(key: key);
-
+  final String avatar;
+  const UserAvatar({Key key, this.avatar}) : super(key: key);
+  
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -112,7 +134,7 @@ class UserAvatar extends StatelessWidget {
               color: Colors.white, borderRadius: BorderRadius.circular(5)),
           child: CachedNetworkImage(
             imageUrl:
-                "http://a1.att.hudong.com/05/00/01300000194285122188000535877.jpg",
+              avatar,
             fit: BoxFit.cover,
           ),
         ),
@@ -347,5 +369,66 @@ class FunctionBox extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class UserInfo {
+  String id;
+  String idNumber;
+  String avatar;
+  String username;
+  String nickname;
+  String sex;
+  String birthday;
+  String motto;
+  String followCount;
+  String fansCount;
+  String likeCount;
+  String memberMark;
+
+  UserInfo(
+      {this.id,
+      this.idNumber,
+      this.avatar,
+      this.username,
+      this.nickname,
+      this.sex,
+      this.birthday,
+      this.motto,
+      this.followCount,
+      this.fansCount,
+      this.likeCount,
+      this.memberMark});
+
+  UserInfo.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    idNumber = json['id_number'];
+    avatar = json['avatar'];
+    username = json['username'];
+    nickname = json['nickname'];
+    sex = json['sex'];
+    birthday = json['birthday'];
+    motto = json['motto'];
+    followCount = json['follow_count'];
+    fansCount = json['fans_count'];
+    likeCount = json['like_count'];
+    memberMark = json['member_mark'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['id_number'] = this.idNumber;
+    data['avatar'] = this.avatar;
+    data['username'] = this.username;
+    data['nickname'] = this.nickname;
+    data['sex'] = this.sex;
+    data['birthday'] = this.birthday;
+    data['motto'] = this.motto;
+    data['follow_count'] = this.followCount;
+    data['fans_count'] = this.fansCount;
+    data['like_count'] = this.likeCount;
+    data['member_mark'] = this.memberMark;
+    return data;
   }
 }

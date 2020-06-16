@@ -1,13 +1,50 @@
+import 'dart:io';
+
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter/material.dart';
+import 'package:hello_world/utils/Request.dart';
+import 'package:path_provider/path_provider.dart';
 
 class LoginPage extends StatefulWidget {
-  LoginPage({Key key}) : super(key: key);
+  
 
+  LoginPage({Key key}) : super(key: key);
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
+  String userPhone = "";
+  String captcha = "";
+  bool isCaptction = false;
+  int resetTime = 60;
+
+  static bool isPhone(String input) {
+    RegExp mobile = new RegExp(r"1[0-9]\d{9}$");
+    return mobile.hasMatch(input);
+  }
+
+  static bool isValidateCaptcha(String input) {
+    RegExp mobile = new RegExp(r"\d{4}$");
+    return mobile.hasMatch(input);
+  }
+
+  void countdown() {
+    Future.delayed(Duration(seconds: 1), () {
+      setState(() {
+        resetTime--;
+      });
+      if (resetTime <= 0) {
+        setState(() {
+          resetTime = 60;
+          isCaptction = false;
+        });
+      } else {
+        countdown();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,7 +65,9 @@ class _LoginPageState extends State<LoginPage> {
               width: 140,
               height: 140,
             ),
-            SizedBox(height: 40,),
+            SizedBox(
+              height: 40,
+            ),
             Container(
               width: 315,
               decoration: BoxDecoration(
@@ -44,6 +83,12 @@ class _LoginPageState extends State<LoginPage> {
                       child: Padding(
                           padding: EdgeInsets.only(left: 20),
                           child: TextField(
+                            onChanged: (v) {
+                              setState(() {
+                                userPhone = v;
+                              });
+                            },
+                            style: TextStyle(color: Colors.white, fontSize: 20),
                             decoration: InputDecoration(
                                 contentPadding:
                                     EdgeInsets.symmetric(vertical: 10),
@@ -54,7 +99,9 @@ class _LoginPageState extends State<LoginPage> {
                 ],
               ),
             ),
-            SizedBox(height: 20,),
+            SizedBox(
+              height: 20,
+            ),
             Container(
               width: 315,
               decoration: BoxDecoration(
@@ -66,6 +113,12 @@ class _LoginPageState extends State<LoginPage> {
                       child: Padding(
                           padding: EdgeInsets.only(left: 20),
                           child: TextField(
+                            onChanged: (d) {
+                              setState(() {
+                                captcha = d;
+                              });
+                            },
+                            style: TextStyle(color: Colors.white, fontSize: 20),
                             decoration: InputDecoration(
                                 contentPadding:
                                     EdgeInsets.symmetric(vertical: 10),
@@ -73,17 +126,32 @@ class _LoginPageState extends State<LoginPage> {
                                 hintStyle: TextStyle(color: Color(0xffdfdfdf)),
                                 border: InputBorder.none),
                           ))),
+                  isPhone(userPhone) ?
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      if (isCaptction) return; 
+                      PxzRequest().post("/api/sms", data: {
+                        "target": userPhone,
+                        "template": "login"
+                      }).then((d) {
+                        print(d);
+                      });
+                      setState(() {
+                        isCaptction = true;
+                      });
+                      countdown();
+                    },
                     child: Text(
-                      "获取验证码",
+                      isCaptction ? "请${resetTime}s后再试" : "获取验证码",
                       style: TextStyle(color: Colors.yellow),
                     ),
-                  )
+                  ) : SizedBox.shrink()
                 ],
               ),
             ),
-            SizedBox(height: 60,),
+            SizedBox(
+              height: 60,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -98,14 +166,28 @@ class _LoginPageState extends State<LoginPage> {
             ),
             SizedBox(height: 5),
             SizedBox(
-              width: 315,
+                width: 315,
                 child: FlatButton(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30)
-                  ),
-                  onPressed: () {},
-                  color: Color(0xfff3d72f),
-                  child: Text("登录", style: TextStyle(color: Colors.white))))
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30)),
+                    onPressed: () {
+                      if(isPhone(userPhone) && isValidateCaptcha(captcha)) {
+                        PxzRequest().post("/passport/login", data: {
+                          "username": userPhone,
+                          "vcode": captcha
+                        }).then((d) async {
+                          Directory appDocDir = await getApplicationDocumentsDirectory();
+                          String appDocPath = appDocDir.path;
+                          var cj=PersistCookieJar(dir:appDocPath+"/.cookies/");
+                          List<Cookie> cookies = cj.loadForRequest(Uri.parse("http://www.paixiaozhua.com"));
+                          print(cookies);
+                        });
+                      }else {
+
+                      }
+                    },
+                    color: Color(0xfff3d72f),
+                    child: Text("登录", style: TextStyle(color: Colors.white))))
           ],
         ),
       ),
