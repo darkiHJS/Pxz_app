@@ -59,7 +59,8 @@ class _NavigationState extends State<Navigation> {
               child: FloatingActionButton(
                 child: Icon(Icons.add),
                 onPressed: () {
-                  changeIndex(2);
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (BuildContext context) => IssuePage()));
                 },
                 backgroundColor: Color(0xFFF5CD1F),
               ),
@@ -88,7 +89,15 @@ class NavigationBar extends StatelessWidget {
           type: BottomNavigationBarType.fixed,
           iconSize: 24.0,
           currentIndex: currentIndex,
-          onTap: (index) => {changeIndex(index)},
+          onTap: (index){
+            print(index);
+            if(index == 2) {
+              Navigator.of(context).push(MaterialPageRoute(
+                    builder: (BuildContext context) => IssuePage()));
+            }else {
+              changeIndex(index);
+            }
+          },
           items: [
             BottomNavigationBarItem(
                 title: Text("爪爪们"),

@@ -8,6 +8,7 @@ import 'package:hello_world/pages/user/UserEdit.dart';
 import 'package:hello_world/pages/user/UserRelease.dart';
 import 'package:hello_world/utils/Request.dart';
 
+import 'Login.dart';
 import 'UserClawHome.dart';
 
 class UserPage extends StatefulWidget {
@@ -22,10 +23,14 @@ class _UserPageState extends State<UserPage> {
   @override
   void initState() {
     PxzRequest().get("/member/index").then((d){
+      if(d["data"] == null) {
+        Navigator.of(context).push(MaterialPageRoute(
+              builder: (BuildContext context) => LoginPage()));
+        return;
+      }
       setState(() {
-        print(d);
         _userInfo = UserInfo.fromJson(d["data"]);
-        print(_userInfo.avatar);
+        print(d["data"]);
       });
     });
     super.initState();
@@ -59,7 +64,7 @@ class _UserPageState extends State<UserPage> {
                         }))
               ]),
             ),
-            UserInfoCompnent(),
+            UserInfoCompnent(userInfo: _userInfo),
             FunctionBox()
           ],
         ));
@@ -134,7 +139,7 @@ class UserAvatar extends StatelessWidget {
               color: Colors.white, borderRadius: BorderRadius.circular(5)),
           child: CachedNetworkImage(
             imageUrl:
-              avatar,
+              avatar ?? "http://a2.att.hudong.com/36/48/19300001357258133412489354717.jpg", 
             fit: BoxFit.cover,
           ),
         ),
@@ -146,7 +151,9 @@ class UserAvatar extends StatelessWidget {
 /// 用户信息
 ///
 class UserInfoCompnent extends StatelessWidget {
-  const UserInfoCompnent({Key key}) : super(key: key);
+
+  final UserInfo userInfo;
+  const UserInfoCompnent({Key key, this.userInfo}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -162,27 +169,27 @@ class UserInfoCompnent extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    "大大",
+                    userInfo.nickname ?? "爪主主",
                     style: TextStyle(fontSize: 32),
                   ),
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: 5),
                     child: Text(
-                      "Pid: pxw694332",
+                      "UID: ${userInfo.idNumber}",
                       style: TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                   ),
                   Text(
-                    "噯崾莱崾収場，僦匴恠那蕞逺の哋方；涐想，這僦媞涐蕞媄の遺莣。",
+                    userInfo.motto ?? "",
                     style: TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                   Row(
                     children: <Widget>[
-                      Icon(IconFont.man, size: 14, color: Colors.blue),
-                      Text(
-                        "18岁",
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
-                      ),
+                      Icon(userInfo.sex == "2" ? IconFont.man: IconFont.woman, size: 14, color: Colors.blue),
+                      // Text(
+                      //   "18岁",
+                      //   style: TextStyle(fontSize: 12, color: Colors.grey),
+                      // ),
                       Padding(
                           padding: EdgeInsets.symmetric(horizontal: 10),
                           child: Text(
@@ -198,19 +205,19 @@ class UserInfoCompnent extends StatelessWidget {
                           minWidth: 0,
                           height: 0,
                           padding: EdgeInsets.only(right: 10),
-                          child: Text("0 获赞")),
+                          child: Text("${userInfo.likeCount} 获赞")),
                       MaterialButton(
                           onPressed: () {},
                           minWidth: 0,
                           height: 0,
                           padding: EdgeInsets.only(right: 10),
-                          child: Text("0 关注")),
+                          child: Text("${userInfo.followCount} 关注")),
                       MaterialButton(
                           onPressed: () {},
                           minWidth: 0,
                           height: 0,
                           padding: EdgeInsets.only(right: 10),
-                          child: Text("19999999 粉丝")),
+                          child: Text("${userInfo.fansCount} 粉丝")),
                     ],
                   )
                 ],
@@ -381,9 +388,9 @@ class UserInfo {
   String sex;
   String birthday;
   String motto;
-  String followCount;
-  String fansCount;
-  String likeCount;
+  int followCount;
+  int fansCount;
+  int likeCount;
   String memberMark;
 
   UserInfo(
