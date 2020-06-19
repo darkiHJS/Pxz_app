@@ -1,5 +1,10 @@
+import 'dart:io';
+
+import 'package:hello_world/utils/Request.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
+import 'package:crypto/crypto.dart';
+import 'dart:convert';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
@@ -27,7 +32,7 @@ class _IssuePageState extends State<IssuePage> {
         assets = [];
       });
       return;
-    } 
+    }
     setState(() {
       formState = fileStatus.camera;
       assets = ass;
@@ -35,7 +40,7 @@ class _IssuePageState extends State<IssuePage> {
   }
 
   selectImage() async {
-    final List<AssetEntity>ass = await AssetPicker.pickAssets(context,
+    final List<AssetEntity> ass = await AssetPicker.pickAssets(context,
         requestType: RequestType.image, maxAssets: 5, selectedAssets: assets);
     if (ass == null) {
       setState(() {
@@ -43,23 +48,29 @@ class _IssuePageState extends State<IssuePage> {
         assets = [];
       });
       return;
-    } 
+    }
     setState(() {
       formState = fileStatus.image;
       assets = ass;
     });
   }
-  
+
   Future getVideoImage() async {
     var file = await assets[0].file;
-    print(file);
-    final uint8list = await VideoThumbnail.thumbnailFile(
-      video: "https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4",
-      thumbnailPath: (await getTemporaryDirectory()).path,
-      imageFormat: ImageFormat.JPEG,
-      maxHeight: 64, // specify the height of the thumbnail, let the width auto-scaled to keep the source aspect ratio
-      quality: 75,
-    );
+    Directory tempDir = await getTemporaryDirectory();
+    String tempPath = tempDir.path;
+    File newFile = new File("$tempPath/video");
+    if (!newFile.existsSync()) {
+      newFile.createSync();
+    }
+    newFile.writeAsBytesSync(await file.readAsBytes());
+
+    final uint8list = await VideoThumbnail.thumbnailData(
+        video: newFile.path,
+        imageFormat: ImageFormat.JPEG,
+        maxHeight: 400,
+        quality: 100);
+
     return uint8list;
   }
 
@@ -76,12 +87,18 @@ class _IssuePageState extends State<IssuePage> {
           )));
     }
     images.add(GestureDetector(
-      onTap: () {selectImage();},
+      onTap: () {
+        selectImage();
+      },
       child: Container(
         width: 80,
         height: 80,
         color: Color(0xffdddddd),
-        child: Icon(assets.length < 5 ? Icons.add : Icons.remove, color:Colors.white, size: 50,),
+        child: Icon(
+          assets.length < 5 ? Icons.add : Icons.remove,
+          color: Colors.white,
+          size: 50,
+        ),
       ),
     ));
     content = Wrap(
@@ -90,7 +107,7 @@ class _IssuePageState extends State<IssuePage> {
       spacing: 10,
       children: images,
     );
-    
+
     return content;
   }
 
@@ -105,11 +122,9 @@ class _IssuePageState extends State<IssuePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Container(
-                  constraints: BoxConstraints(
-                    minHeight: 80
-                  ),
-                  padding: EdgeInsets.symmetric(vertical: 10),
-                  child: assets.length <= 0
+                    constraints: BoxConstraints(minHeight: 80),
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                    child: assets.length <= 0
                         ? Center(
                             child: Text.rich(
                             TextSpan(text: "上传 ", children: [
@@ -157,10 +172,10 @@ class _IssuePageState extends State<IssuePage> {
                                       );
                                     })
                                 : FutureBuilder(
+                                    // 视频展示框架
                                     future: getVideoImage(),
                                     builder: (BuildContext context,
                                         AsyncSnapshot snapshot) {
-                                      print(snapshot.data);
                                       if (snapshot.connectionState ==
                                           ConnectionState.done) {
                                         if (snapshot.hasError) {
@@ -168,7 +183,43 @@ class _IssuePageState extends State<IssuePage> {
                                             child: Text("未知错误"),
                                           );
                                         } else {
-                                          return Image.asset(snapshot.data);
+                                          return Stack(
+                                            alignment: AlignmentDirectional.center,
+                                            children: <Widget>[
+                                              Container(
+                                                margin: EdgeInsets.fromLTRB(0, 10, 10, 0),
+                                                height: 100,
+                                                width: 100,
+                                                alignment:
+                                                    AlignmentDirectional.center,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  image: DecorationImage(
+                                                      image: MemoryImage(
+                                                          snapshot.data),
+                                                      fit: BoxFit.fitWidth),
+                                                ),
+                                                child: Icon(
+                                                    Icons.play_circle_outline,
+                                                    size: 40,
+                                                    color: Colors.white),
+                                              ),
+                                              Positioned(
+                                                right: 0,
+                                                top: 0,
+                                                child: GestureDetector(
+                                                  onTap: () {
+                                                    setState(() {
+                                                      formState = fileStatus.none;
+                                                      assets = [];
+                                                    });
+                                                  },
+                                                  child: Icon(Icons.remove_circle, color: Colors.red,),
+                                                )
+                                              )
+                                            ],
+                                          );
                                         }
                                       }
                                       return Center(
@@ -211,8 +262,7 @@ class _IssuePageState extends State<IssuePage> {
                               TextStyle(color: Color(0xff626262), fontSize: 14),
                           border: InputBorder.none),
                     )),
-                formState == fileStatus.camera
-                    ? Container(
+                    Container(
                         margin: EdgeInsets.only(top: 20),
                         padding:
                             EdgeInsets.symmetric(horizontal: 10, vertical: 10),
@@ -229,8 +279,7 @@ class _IssuePageState extends State<IssuePage> {
                             Text("0/个", style: TextStyle(fontSize: 12))
                           ],
                         ),
-                      )
-                    : Container(),
+                      ),
                 Container(
                   margin: EdgeInsets.only(top: 40),
                   width: double.infinity,
@@ -238,9 +287,51 @@ class _IssuePageState extends State<IssuePage> {
                     onPressed: () async {
                       print(formTitle);
                       print(formContent);
-                      for(var a in assets) {
+                      for (var a in assets) {
                         print(a.relativePath);
                       }
+
+                      if(formState == fileStatus.image && assets.length > 0) {
+                        for(AssetEntity ass in assets) {
+                          File file = await ass.file;
+                          // 跟服务器打申请
+                          // var data = await PxzRequest().get("/console/public_trait/upload", data: {
+                          //   "old_name": ass.title,
+                          //   "bucket_type": "image"
+                          // },);
+                          // 复制到临时目录，重命名，上传到阿里服务器
+                          String fileMd5 = md5.convert(await file.readAsBytes()).toString();
+                          List<String> nameAndType = ass.title.split(".");
+                          Directory tempDir = await getTemporaryDirectory();
+                          String tempPath = tempDir.path;
+                          print(nameAndType);
+                          File newFile = File("$tempPath/photo/$fileMd5.${nameAndType[1]}");
+                          if (!newFile.existsSync()) {
+                            newFile.createSync();
+                          }
+                          newFile.writeAsBytesSync(await file.readAsBytes());
+                          print(newFile.path);
+                          // File file = await ass.file;
+                     
+                          // File newFile = new File("$tempPath/video");
+                          // if (!newFile.existsSync()) {
+                          //   newFile.createSync();
+                          // }
+                          // newFile.writeAsBytesSync(await file.readAsBytes());
+                          
+                          
+                          // await file.rename(fileMd5);
+                          // String oldName = ass.title;
+                          // List<String> nameAndType = oldName.split(".");
+                          // file.rename(file.path.replaceFirst(ass.title, fileMd5 + "." + nameAndType[1]));
+                          // print("${file.path}");
+                          // print("${ass.title}");
+                          // print("${nameAndType[0]}");
+                          // print("${ass.type}");
+                          // print("$fileMd5");
+                        }
+                      }
+
                     },
                     color: Color(0xfff4cd20),
                     child: Text("发布"),
