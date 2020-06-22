@@ -1,10 +1,11 @@
 import 'dart:io';
-
+import 'dart:typed_data';
+import 'package:bot_toast/bot_toast.dart';
+import 'package:dio/dio.dart';
 import 'package:hello_world/utils/Request.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:crypto/crypto.dart';
-import 'dart:convert';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
@@ -19,8 +20,8 @@ class IssuePage extends StatefulWidget {
 }
 
 class _IssuePageState extends State<IssuePage> {
-  String formTitle;
-  String formContent;
+  String formTitle = "";
+  String formContent = "";
   List<AssetEntity> assets = [];
   var formState = fileStatus.none;
   selectCamera() async {
@@ -184,10 +185,12 @@ class _IssuePageState extends State<IssuePage> {
                                           );
                                         } else {
                                           return Stack(
-                                            alignment: AlignmentDirectional.center,
+                                            alignment:
+                                                AlignmentDirectional.center,
                                             children: <Widget>[
                                               Container(
-                                                margin: EdgeInsets.fromLTRB(0, 10, 10, 0),
+                                                margin: EdgeInsets.fromLTRB(
+                                                    0, 10, 10, 0),
                                                 height: 100,
                                                 width: 100,
                                                 alignment:
@@ -206,18 +209,21 @@ class _IssuePageState extends State<IssuePage> {
                                                     color: Colors.white),
                                               ),
                                               Positioned(
-                                                right: 0,
-                                                top: 0,
-                                                child: GestureDetector(
-                                                  onTap: () {
-                                                    setState(() {
-                                                      formState = fileStatus.none;
-                                                      assets = [];
-                                                    });
-                                                  },
-                                                  child: Icon(Icons.remove_circle, color: Colors.red,),
-                                                )
-                                              )
+                                                  right: 0,
+                                                  top: 0,
+                                                  child: GestureDetector(
+                                                    onTap: () {
+                                                      setState(() {
+                                                        formState =
+                                                            fileStatus.none;
+                                                        assets = [];
+                                                      });
+                                                    },
+                                                    child: Icon(
+                                                      Icons.remove_circle,
+                                                      color: Colors.red,
+                                                    ),
+                                                  ))
                                             ],
                                           );
                                         }
@@ -262,7 +268,8 @@ class _IssuePageState extends State<IssuePage> {
                               TextStyle(color: Color(0xff626262), fontSize: 14),
                           border: InputBorder.none),
                     )),
-                    Container(
+                formState == fileStatus.camera
+                    ? Container(
                         margin: EdgeInsets.only(top: 20),
                         padding:
                             EdgeInsets.symmetric(horizontal: 10, vertical: 10),
@@ -279,59 +286,182 @@ class _IssuePageState extends State<IssuePage> {
                             Text("0/个", style: TextStyle(fontSize: 12))
                           ],
                         ),
-                      ),
+                      )
+                    : Container(),
                 Container(
                   margin: EdgeInsets.only(top: 40),
                   width: double.infinity,
                   child: FlatButton(
                     onPressed: () async {
-                      print(formTitle);
-                      print(formContent);
-                      for (var a in assets) {
-                        print(a.relativePath);
+                      List<String> fileMd5List = [];
+                      String sltMd5;
+                      // 判断标题 想法是否填写 判断图片是否存在
+                      if (assets.length <= 0) {
+                        BotToast.showText(text: "上传一个视频或者图片内容吧~");
+                        return;
                       }
-
-                      if(formState == fileStatus.image && assets.length > 0) {
-                        for(AssetEntity ass in assets) {
+                      if (formTitle == "") {
+                        BotToast.showText(
+                          text: "赶快取一个好听的标题吧！",
+                        );
+                        return;
+                      }
+                      if (formContent == "") {
+                        BotToast.showText(text: "把想法写出来吧~");
+                        return;
+                      }
+                      var loading = BotToast.showLoading();
+                      loading();
+                      if (formState == fileStatus.image) {
+                        for (AssetEntity ass in assets) {
                           File file = await ass.file;
+                          Response updateCell;
                           // 跟服务器打申请
-                          // var data = await PxzRequest().get("/console/public_trait/upload", data: {
-                          //   "old_name": ass.title,
-                          //   "bucket_type": "image"
-                          // },);
+                          var data = await PxzRequest().get(
+                            "/console/public_trait/upload",
+                            data: {
+                              "old_name": ass.title,
+                              "bucket_type": "image"
+                            },
+                          );
+                          data = data["data"];
                           // 复制到临时目录，重命名，上传到阿里服务器
-                          String fileMd5 = md5.convert(await file.readAsBytes()).toString();
+                          String fileMd5 =
+                              md5.convert(await file.readAsBytes()).toString();
                           List<String> nameAndType = ass.title.split(".");
                           Directory tempDir = await getTemporaryDirectory();
                           String tempPath = tempDir.path;
-                          print(nameAndType);
-                          File newFile = File("$tempPath/photo/$fileMd5.${nameAndType[1]}");
+                          File newFile = File(
+                              "$tempPath/photo/$fileMd5.${nameAndType[1]}");
                           if (!newFile.existsSync()) {
-                            newFile.createSync();
+                            newFile.createSync(recursive: true);
                           }
                           newFile.writeAsBytesSync(await file.readAsBytes());
-                          print(newFile.path);
-                          // File file = await ass.file;
-                     
-                          // File newFile = new File("$tempPath/video");
-                          // if (!newFile.existsSync()) {
-                          //   newFile.createSync();
-                          // }
-                          // newFile.writeAsBytesSync(await file.readAsBytes());
-                          
-                          
-                          // await file.rename(fileMd5);
-                          // String oldName = ass.title;
-                          // List<String> nameAndType = oldName.split(".");
-                          // file.rename(file.path.replaceFirst(ass.title, fileMd5 + "." + nameAndType[1]));
-                          // print("${file.path}");
-                          // print("${ass.title}");
-                          // print("${nameAndType[0]}");
-                          // print("${ass.type}");
-                          // print("$fileMd5");
+                          FormData fileFormData = FormData.fromMap({
+                            "key": "images/$fileMd5.${nameAndType[1]}",
+                            "policy": data["policy"],
+                            "OSSAccessKeyId": data["accessid"],
+                            "success_action_status": "200",
+                            "callback": data["callback"],
+                            "signature": data["signature"],
+                            "file": await MultipartFile.fromFile(newFile.path,
+                                filename: "$fileMd5.${nameAndType[1]}")
+                          });
+                          try {
+                            updateCell = await Dio()
+                                .post(data["host"], data: fileFormData);
+                          } on DioError catch (e) {
+                            print("请求失败 --- 错误类型${e.type} $e");
+                          }
+                          fileMd5List.add(updateCell.data["data"]["md5"]);
+                        }
+                      } else {
+                        File file = await assets[0].file;
+                        Response updateCell;
+
+                        var data = await PxzRequest().get(
+                          "/console/public_trait/upload",
+                          data: {
+                            "old_name": assets[0].title,
+                            "bucket_type": "video"
+                          },
+                        );
+                        data = data["data"];
+                        String fileMd5 =
+                            md5.convert(await file.readAsBytes()).toString();
+                        List<String> nameAndType = assets[0].title.split(".");
+                        Directory tempDir = await getTemporaryDirectory();
+                        String tempPath = tempDir.path;
+                        File newFile =
+                            File("$tempPath/photo/$fileMd5.${nameAndType[1]}");
+                        if (!newFile.existsSync()) {
+                          newFile.createSync(recursive: true);
+                        }
+                        newFile.writeAsBytesSync(await file.readAsBytes());
+                        FormData fileFormData = FormData.fromMap({
+                          "key": "videos/$fileMd5.${nameAndType[1]}",
+                          "policy": data["policy"],
+                          "OSSAccessKeyId": data["accessid"],
+                          "success_action_status": "200",
+                          "callback": data["callback"],
+                          "signature": data["signature"],
+                          "file": await MultipartFile.fromFile(newFile.path,
+                              filename: "$fileMd5.${nameAndType[1]}")
+                        });
+                        try {
+                          updateCell = await Dio()
+                              .post(data["host"], data: fileFormData);
+                        } on DioError catch (e) {
+                          print("请求失败 --- 错误类型${e.type} $e");
+                        }
+                        fileMd5List.add(updateCell.data["data"]["md5"]);
+                        //  上传视频缩略图
+
+                        // 获得视频缩略图的md5
+                        Uint8List slt = await getVideoImage();
+                        String sltMd5 = md5.convert(slt).toString();
+                        Response sltRp;
+
+                        File newSltFile = File("$tempPath/photo/$sltMd5.jpg");
+                        if (!newSltFile.existsSync()) {
+                          newSltFile.createSync(recursive: true);
+                        }
+                        newSltFile.writeAsBytesSync(slt);
+                        var utData = await PxzRequest().get(
+                          "/console/public_trait/upload",
+                          data: {
+                            "old_name": "$sltMd5.jpg",
+                            "bucket_type": "image"
+                          },
+                        );
+                        print(utData);
+                        FormData sltData = FormData.fromMap({
+                          "key": "images/$sltMd5.jpg",
+                          "policy": utData["policy"],
+                          "OSSAccessKeyId": utData["accessid"],
+                          "success_action_status": "200",
+                          "callback": utData["callback"],
+                          "signature": utData["signature"],
+                          "file": await MultipartFile.fromFile(newSltFile.path,
+                              filename: "$sltMd5.jpg")
+                        });
+                        print(sltData);
+                        try {
+                          sltRp = await Dio()
+                              .post(utData["host"], data: sltData);
+                        } on DioError catch (e) {
+                          print("请求失败 --- 错误类型${e.type} $e");
                         }
                       }
-
+                      try {
+                        Map data = {
+                          "title": formTitle,
+                          "content": formContent,
+                          "resources": fileMd5List
+                        };
+                        if(formState == fileStatus.camera) {
+                          data["image_default_id"] = sltMd5;
+                        }
+                        PxzRequest().post("/rescue/add", data: data).then((d) {
+                          print(d);
+                          if (d["status"] == "success") {
+                            BotToast.showText(
+                              text: "内容发布成功。",
+                            );
+                            Navigator.popAndPushNamed(context, "/");
+                          } else {
+                            BotToast.showText(
+                              text: "内容发布失败。原因: ${d["msg"]}",
+                            );
+                          }
+                        });
+                        loading();
+                      } on DioError catch (_) {
+                        BotToast.showText(
+                          text: "内容发布失败",
+                        );
+                        loading();
+                      }
                     },
                     color: Color(0xfff4cd20),
                     child: Text("发布"),
@@ -343,3 +473,5 @@ class _IssuePageState extends State<IssuePage> {
         ));
   }
 }
+
+class UploadFileInfo {}

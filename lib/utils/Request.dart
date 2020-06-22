@@ -69,7 +69,7 @@ class PxzRequest {
         data: formData
       );
     } on DioError catch (e) {
-      print("请求失败 --- 错误类型${e.type}");
+      print("请求失败 --- 错误类型${e.type} ${e.message}");
     }
 
     return response.data;

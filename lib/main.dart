@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_world/models/UserState.dart';
 import 'package:provider/provider.dart';
@@ -28,7 +29,9 @@ class MyApp extends StatelessWidget {
           ChangeNotifierProvider(create: (_) => UserState())
         ],
         child: MaterialApp(
-        title: 'Material App',
+        title: '派小爪',
+        builder: BotToastInit(),
+        navigatorObservers: [BotToastNavigatorObserver()],
         theme: ThemeData(
           brightness: Brightness.light,
           primaryColor: Color(0xfff3d72f),
