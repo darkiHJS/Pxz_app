@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:bot_toast/bot_toast.dart';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -335,6 +336,7 @@ class _UserEditPageState extends State<UserEditPage> {
                     ),
                     FlatButton(
                         onPressed: () async {
+                          var loading = BotToast.showLoading();
                           print("------------------------");
                           print("-昵称: ${_data.nickname}-");
                           print("-性别: ${_data.sex}-");
@@ -371,13 +373,36 @@ class _UserEditPageState extends State<UserEditPage> {
                             try {
                             updateCell = await Dio()
                                 .post(data["host"], data: fileFormData);
+                              print(updateCell);
                             } on DioError catch (e) {
                               print("请求失败 --- 错误类型${e.type} $e");
                             }
                             avatarMd5 = updateCell.data["data"]["md5"];
                           }
-
+                          print(avatarMd5);
                           // 上传用户修改内容
+                          try {
+                            var formdata = {
+                              "nickname": _data.nickname,
+                              "sex": _data.sex,
+                              "area": _data.areaDetail,
+                              "birthday": _data.birthday,
+                              "motto": _data.motto
+                            };
+                            if (avatarImage != null) {
+                              formdata["avatar"] = avatarMd5;
+                            }
+                            var data = await PxzRequest().post("/member/member_edit", data: formdata);
+                            if(data["code"] == 10000) {
+                              BotToast.showText(text: "提交成功。");
+                            }
+                            print(data);
+                            loading();
+                          } on DioError catch (e) {
+                            loading();
+                            BotToast.showText(text: "提交失败。${e.message}");
+                          }
+                          
                         },
                         color: Color(0xfff3d72f),
                         child:

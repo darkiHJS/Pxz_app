@@ -39,23 +39,23 @@ class UserSafetyPage extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 10,),
-              GestureDetector(
-                child: Container(
-                  height: 60,
-                  padding: EdgeInsets.symmetric(horizontal: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(4)
-                  ),
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(child: Text("修改密码", style: TextStyle(color: Color(0xff606060)))),
-                      Text("未设置", style: TextStyle(color: Color(0xff606060))),
-                      Icon(Icons.arrow_forward_ios, color:Color(0xff606060), size: 18,),
-                    ],
-                  ),
-                ),
-              ),
+              // GestureDetector(
+              //   child: Container(
+              //     height: 60,
+              //     padding: EdgeInsets.symmetric(horizontal: 10),
+              //     decoration: BoxDecoration(
+              //       color: Colors.black12,
+              //       borderRadius: BorderRadius.circular(4)
+              //     ),
+              //     child: Row(
+              //       children: <Widget>[
+              //         Expanded(child: Text("修改密码(未开放)", style: TextStyle(color: Color(0xff606060)))),
+              //         Text("未设置", style: TextStyle(color: Color(0xff606060))),
+              //         Icon(Icons.arrow_forward_ios, color:Color(0xff606060), size: 18,),
+              //       ],
+              //     ),
+              //   ),
+              // ),
 
             ], 
           ),

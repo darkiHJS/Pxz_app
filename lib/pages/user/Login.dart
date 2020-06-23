@@ -89,7 +89,9 @@ class _LoginPageState extends State<LoginPage> {
                               });
                             },
                             style: TextStyle(color: Colors.white, fontSize: 20),
+                            maxLength: 11,
                             decoration: InputDecoration(
+                                counterText: "",
                                 contentPadding:
                                     EdgeInsets.symmetric(vertical: 10),
                                 hintText: "请输入手机号码",
@@ -118,8 +120,10 @@ class _LoginPageState extends State<LoginPage> {
                                 captcha = d;
                               });
                             },
+                            maxLength: 4,
                             style: TextStyle(color: Colors.white, fontSize: 20),
                             decoration: InputDecoration(
+                                counterText: "",
                                 contentPadding:
                                     EdgeInsets.symmetric(vertical: 10),
                                 hintText: "请输入验证码",

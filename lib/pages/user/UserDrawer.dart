@@ -3,6 +3,7 @@ import 'package:hello_world/pages/user/Login.dart';
 import 'package:hello_world/pages/user/UserAboutUs.dart';
 import 'package:hello_world/pages/user/UserOpinion.dart';
 import 'package:hello_world/pages/user/UserSafety.dart';
+import 'package:hello_world/utils/Request.dart';
 
 class UserDrawer extends StatelessWidget {
   const UserDrawer({Key key}) : super(key: key);
@@ -121,7 +122,8 @@ class UserDrawer extends StatelessWidget {
                 Icon(Icons.arrow_forward_ios)
               ],
             ),
-            onTap: () {
+            onTap: () async {
+              await PxzRequest().get("/passport/logout");
               Navigator.of(context).push(MaterialPageRoute(
               builder: (BuildContext context) => LoginPage()));
             },
