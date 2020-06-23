@@ -294,7 +294,7 @@ class _IssuePageState extends State<IssuePage> {
                   child: FlatButton(
                     onPressed: () async {
                       List<String> fileMd5List = [];
-                      String sltMd5;
+                      String sltUpdateMd5;
                       // 判断标题 想法是否填写 判断图片是否存在
                       if (assets.length <= 0) {
                         BotToast.showText(text: "上传一个视频或者图片内容吧~");
@@ -311,7 +311,6 @@ class _IssuePageState extends State<IssuePage> {
                         return;
                       }
                       var loading = BotToast.showLoading();
-                      loading();
                       if (formState == fileStatus.image) {
                         for (AssetEntity ass in assets) {
                           File file = await ass.file;
@@ -414,7 +413,7 @@ class _IssuePageState extends State<IssuePage> {
                             "bucket_type": "image"
                           },
                         );
-                        print(utData);
+                        utData = utData["data"];
                         FormData sltData = FormData.fromMap({
                           "key": "images/$sltMd5.jpg",
                           "policy": utData["policy"],
@@ -425,22 +424,24 @@ class _IssuePageState extends State<IssuePage> {
                           "file": await MultipartFile.fromFile(newSltFile.path,
                               filename: "$sltMd5.jpg")
                         });
-                        print(sltData);
                         try {
                           sltRp = await Dio()
                               .post(utData["host"], data: sltData);
+                          var d = sltRp.data["data"];
+                          print(d["md5"]);
+                          sltUpdateMd5 = d["md5"];
                         } on DioError catch (e) {
                           print("请求失败 --- 错误类型${e.type} $e");
                         }
                       }
                       try {
-                        Map data = {
-                          "title": formTitle,
-                          "content": formContent,
-                          "resources": fileMd5List
+                        var data = {
+                          "title": formTitle, // 文章标题
+                          "desc": formContent, // 详情
+                          "resources": fileMd5List // 资源列表
                         };
                         if(formState == fileStatus.camera) {
-                          data["image_default_id"] = sltMd5;
+                          data["main_default_id"] = sltUpdateMd5;
                         }
                         PxzRequest().post("/rescue/add", data: data).then((d) {
                           print(d);
@@ -473,5 +474,3 @@ class _IssuePageState extends State<IssuePage> {
         ));
   }
 }
-
-class UploadFileInfo {}

@@ -180,6 +180,7 @@ class _LoginPageState extends State<LoginPage> {
                           String appDocPath = appDocDir.path;
                           var cj=PersistCookieJar(dir:appDocPath+"/.cookies/");
                           List<Cookie> cookies = cj.loadForRequest(Uri.parse("http://www.paixiaozhua.com"));
+                          Navigator.of(context).popAndPushNamed("/");
                           print(cookies);
                         });
                       }else {

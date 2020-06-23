@@ -25,6 +25,7 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
     getData() async {
       Map<String, dynamic> requ = await PxzRequest()
           .get("/index/index", data: {"page": 1, "limit": 20});
+      print(requ);
       List<dynamic> reqs = requ["data"]["items"];
       setState(() {
         discoverItems = reqs.map((e) => DiscoveryDataItem.fromJson(e)).toList();
