@@ -378,6 +378,9 @@ class _UserEditPageState extends State<UserEditPage> {
                           }
 
                           // 上传用户修改内容
+                          var editUserInfo = PxzRequest().post("member/member_edit", data: {
+                            "nickname": _data.nickname,
+                          });
                         },
                         color: Color(0xfff3d72f),
                         child:
