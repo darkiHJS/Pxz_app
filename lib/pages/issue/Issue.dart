@@ -9,6 +9,7 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
+import 'IssueAssociationPet.dart';
 
 enum fileStatus { none, image, camera }
 
@@ -269,7 +270,11 @@ class _IssuePageState extends State<IssuePage> {
                           border: InputBorder.none),
                     )),
                 formState == fileStatus.camera
-                    ? Container(
+                    ? GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => IssueAssociationPetPage()));
+                      },
+                      child: Container(
                         margin: EdgeInsets.only(top: 20),
                         padding:
                             EdgeInsets.symmetric(horizontal: 10, vertical: 10),
@@ -286,7 +291,7 @@ class _IssuePageState extends State<IssuePage> {
                             Text("0/个", style: TextStyle(fontSize: 12))
                           ],
                         ),
-                      )
+                      ),)
                     : Container(),
                 Container(
                   margin: EdgeInsets.only(top: 40),
@@ -449,7 +454,7 @@ class _IssuePageState extends State<IssuePage> {
                             BotToast.showText(
                               text: "内容发布成功。",
                             );
-                            Navigator.popAndPushNamed(context, "/");
+                            Navigator.of(context).pop();
                           } else {
                             BotToast.showText(
                               text: "内容发布失败。原因: ${d["msg"]}",

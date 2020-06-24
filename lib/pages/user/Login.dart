@@ -84,12 +84,15 @@ class _LoginPageState extends State<LoginPage> {
                           padding: EdgeInsets.only(left: 20),
                           child: TextField(
                             onChanged: (v) {
+                              if(!isPhone(v)) return;
                               setState(() {
                                 userPhone = v;
                               });
                             },
                             style: TextStyle(color: Colors.white, fontSize: 20),
+                            maxLength: 11,
                             decoration: InputDecoration(
+                                counterText: "",
                                 contentPadding:
                                     EdgeInsets.symmetric(vertical: 10),
                                 hintText: "请输入手机号码",
@@ -118,8 +121,10 @@ class _LoginPageState extends State<LoginPage> {
                                 captcha = d;
                               });
                             },
+                            maxLength: 4,
                             style: TextStyle(color: Colors.white, fontSize: 20),
                             decoration: InputDecoration(
+                                counterText: "",
                                 contentPadding:
                                     EdgeInsets.symmetric(vertical: 10),
                                 hintText: "请输入验证码",
@@ -171,6 +176,8 @@ class _LoginPageState extends State<LoginPage> {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30)),
                     onPressed: () {
+                      print(userPhone);
+                      print(captcha);
                       if(isPhone(userPhone) && isValidateCaptcha(captcha)) {
                         PxzRequest().post("/passport/login", data: {
                           "username": userPhone,
@@ -189,7 +196,7 @@ class _LoginPageState extends State<LoginPage> {
                     },
                     color: Color(0xfff3d72f),
                     child: Text("登录", style: TextStyle(color: Colors.white))))
-          ],
+          ],      
         ),
       ),
     );

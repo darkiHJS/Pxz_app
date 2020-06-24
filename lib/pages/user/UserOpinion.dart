@@ -1,4 +1,7 @@
+import 'package:bot_toast/bot_toast.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:hello_world/utils/Request.dart';
 
 class UserOpinionPage extends StatefulWidget {
   UserOpinionPage({Key key}) : super(key: key);
@@ -8,6 +11,9 @@ class UserOpinionPage extends StatefulWidget {
 }
 
 class _UserOpinionPageState extends State<UserOpinionPage> {
+
+  String content;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -25,6 +31,9 @@ class _UserOpinionPageState extends State<UserOpinionPage> {
                 color: Colors.white,
                 child: TextField(
                   maxLength: 8,
+                  onChanged: (v) {
+                    content = v;
+                  },
                   decoration: InputDecoration(
                     hintText: "请输入你的反馈意见",
                     hintStyle: TextStyle(color: Color(0xffdfdfdf)),
@@ -40,7 +49,24 @@ class _UserOpinionPageState extends State<UserOpinionPage> {
                 width: 200,
                 height: 40,
                 child: FlatButton(
-                onPressed: () {},
+                onPressed: () async {
+                  try {
+                    var data = await PxzRequest().post(
+                        "/suggest/add",
+                        data: {
+                          "content": content,
+                        }
+                      );
+                      if(data["code"] == 10000) {
+                        BotToast.showText(text: "已反馈。谢谢");
+                        Navigator.of(context).pop();
+                      }else {
+                        BotToast.showText(text: "出错了。${data['msg']}");
+                      }
+                  } on DioError catch (e) {
+                    BotToast.showText(text: "出错了。${e.message}");
+                  }
+                },
                 color: Color(0xfff3d72f),
                 child: Text("提交", style: TextStyle(color: Colors.white)))
               )

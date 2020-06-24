@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hello_world/utils/Request.dart';
 
 class AdoptSongYangFormPage extends StatefulWidget {
   AdoptSongYangFormPage({Key key}) : super(key: key);
@@ -8,6 +9,22 @@ class AdoptSongYangFormPage extends StatefulWidget {
 }
 
 class _AdoptSongYangFormPageState extends State<AdoptSongYangFormPage> {
+
+  // 用 接口加载 form item 去加载表单
+
+  // 获取服务器传回的from item
+  Future getFromModel() async{
+    var res = await PxzRequest().get("/pet/edit");
+    print(res);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    print(1);
+    getFromModel();
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(

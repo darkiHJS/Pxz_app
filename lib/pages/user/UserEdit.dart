@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:bot_toast/bot_toast.dart';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -30,17 +31,19 @@ class _UserEditPageState extends State<UserEditPage> {
   Future initFormData() async {
     var formdata = await PxzRequest().get("/member/index");
     formdata = formdata["data"];
+    print(formdata);
     setState(() {
       _data = UserFormData(
           avatar: formdata["avatar"],
           nickname: formdata["nickname"],
-          birthday: formdata["birhday"],
+          birthday: (int.parse(formdata["birthday"]) * 1000).toString(),
           sex: formdata["sex"] ?? "2",
-          areaDetail: formdata["areaDetail"] != null
-              ? formdata["areaDetail"].split
+          areaDetail: formdata["area_detail"] != null
+              ? formdata["area_detail"].join(",")
               : null,
           motto: formdata["motto"]);
     });
+    print(_data);
     return formdata;
   }
 
@@ -89,8 +92,7 @@ class _UserEditPageState extends State<UserEditPage> {
                                     image: avatarImage != null
                                         ? MemoryImage(
                                             avatarImage.readAsBytesSync())
-                                        : NetworkImage(
-                                            "http://a1.att.hudong.com/05/00/01300000194285122188000535877.jpg"),
+                                        : NetworkImage(_data.avatar ?? "http://a1.att.hudong.com/05/00/01300000194285122188000535877.jpg"),
                                     fit: BoxFit.cover,
                                     colorFilter: avatarImage != null
                                         ? null
@@ -335,6 +337,7 @@ class _UserEditPageState extends State<UserEditPage> {
                     ),
                     FlatButton(
                         onPressed: () async {
+                          var loading = BotToast.showLoading();
                           print("------------------------");
                           print("-昵称: ${_data.nickname}-");
                           print("-性别: ${_data.sex}-");
@@ -371,16 +374,36 @@ class _UserEditPageState extends State<UserEditPage> {
                             try {
                             updateCell = await Dio()
                                 .post(data["host"], data: fileFormData);
+                              print(updateCell);
                             } on DioError catch (e) {
                               print("请求失败 --- 错误类型${e.type} $e");
                             }
                             avatarMd5 = updateCell.data["data"]["md5"];
                           }
-
+                          print(avatarMd5);
                           // 上传用户修改内容
-                          var editUserInfo = PxzRequest().post("member/member_edit", data: {
-                            "nickname": _data.nickname,
-                          });
+                          try {
+                            var formdata = {
+                              "nickname": _data.nickname,
+                              "sex": _data.sex,
+                              "area": _data.areaDetail.split(","),
+                              "birthday": int.parse(_data.birthday) / 1000,
+                              "motto": _data.motto
+                            };
+                            if (avatarImage != null) {
+                              formdata["avatar"] = avatarMd5;
+                            }
+                            var data = await PxzRequest().post("/member/member_edit", data: formdata);
+                            if(data["code"] == 10000) {
+                              Navigator.popAndPushNamed(context, "/");
+                              BotToast.showText(text: "提交成功。");
+                            }
+                            print(data);
+                            loading();
+                          } on DioError catch (e) {
+                            loading();
+                            BotToast.showText(text: "提交失败。${e.message}");
+                          }
                         },
                         color: Color(0xfff3d72f),
                         child:
