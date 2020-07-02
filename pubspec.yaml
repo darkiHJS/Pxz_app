@@ -99,6 +99,8 @@ flutter:
     - assets/user/user-certificate-ing.png
     - assets/user/loginBG.jpg
     - assets/adopt/wechar.png
+    - assets/adopt/idCard-1.png
+    - assets/adopt/idCard-2.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

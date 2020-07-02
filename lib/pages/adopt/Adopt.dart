@@ -1,13 +1,17 @@
+import 'package:bot_toast/bot_toast.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:hello_world/components/IconFont.dart';
 import 'package:hello_world/pages/adopt/AdoptBlackList.dart';
+import 'package:hello_world/pages/adopt/AdoptCertification.dart';
 import 'package:hello_world/pages/adopt/AdoptLicense.dart';
 import 'package:hello_world/pages/adopt/AdoptLingYangForm.dart';
 import 'package:hello_world/pages/adopt/AdoptNotice.dart';
+import 'package:hello_world/pages/adopt/AdoptPet.dart';
 import 'package:hello_world/pages/adopt/AdoptSongYangForm.dart';
 import 'package:hello_world/pages/user/components/PetHomingItem.dart';
+import 'package:hello_world/utils/Request.dart';
 
 class AdoptPage extends StatefulWidget {
   AdoptPage({Key key}) : super(key: key);
@@ -21,7 +25,7 @@ class _AdoptPageState extends State<AdoptPage>
   TabController tabController;
 
   void _showDialog() async {
-    await Future.delayed(Duration(microseconds: 50));
+    await  Future.delayed(Duration(microseconds: 50));
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -29,9 +33,12 @@ class _AdoptPageState extends State<AdoptPage>
           content: AdoptNoticePage(),
           actions: <Widget>[
             new FlatButton(
-              child: new Text("Close"),
+              child: new Text("去实名认证"),
               onPressed: () {
-                Navigator.of(context).pop();
+                // Navigator.of(context).pop();
+                Navigator.of(context).push(MaterialPageRoute(
+                      builder: (BuildContext context) =>
+                          AdoptCertificationPage()));
               },
             ),
           ],
@@ -40,10 +47,22 @@ class _AdoptPageState extends State<AdoptPage>
     );
   }
 
+  Future getPetList() async{
+    var data = await PxzRequest().get(
+      "/pet/index",
+      data: {
+        "page": 1,
+        "limit": 20,
+      }
+    );
+    print(data);
+  }
+
   @override
   void initState() {
     this.tabController = TabController(length: 2, vsync: this);
     super.initState();
+    getPetList();
     _showDialog();
   }
 
@@ -69,10 +88,24 @@ class _AdoptPageState extends State<AdoptPage>
             alignment: WrapAlignment.spaceAround,
             children: <Widget>[
               GestureDetector(
-                onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(
+                onTap: () async{
+                  var data = await PxzRequest().get("/member/index");
+                  print(data);
+                  if(data["data"]["is_verified"] == "2") {
+                     Navigator.of(context).push(MaterialPageRoute(
                       builder: (BuildContext context) =>
                           AdoptSongYangFormPage()));
+                  }else {
+                    if(data["data"]["is_verified"] == "1") {
+                      Navigator.of(context).push(MaterialPageRoute(
+                      builder: (BuildContext context) =>
+                          AdoptCertificationPage()));
+                      BotToast.showText(text: "请先实名认证。");
+                    }
+                    if(data["data"]["is_verified"] == "3") {
+                      BotToast.showText(text: "认证中，将在三个工作日内完成。");
+                    }
+                  }
                 },
                 child: Column(
                   children: <Widget>[
@@ -217,7 +250,14 @@ class _AdoptPageState extends State<AdoptPage>
                     )))),
         SliverList(delegate:
             SliverChildBuilderDelegate((BuildContext context, int index) {
-          return PetHommingItem();
+          return GestureDetector(
+            onTap: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                      builder: (BuildContext context) =>
+                          AdoptPetPage()));
+            },
+            child: PetHommingItem(),
+          );
         }))
       ],
     );

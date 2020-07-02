@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:hello_world/utils/Request.dart';
 
 class AdoptLingYangFormPage extends StatefulWidget {
   AdoptLingYangFormPage({Key key}) : super(key: key);
@@ -9,6 +10,17 @@ class AdoptLingYangFormPage extends StatefulWidget {
 }
 
 class _AdoptLingYangFormPageState extends State<AdoptLingYangFormPage> {
+  Future getFromModel() async {
+    var res = await PxzRequest().get("/member_pexp/detail");
+    print(res);
+  }
+  
+  @override
+  void initState() {
+    super.initState();
+    getFromModel();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

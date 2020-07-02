@@ -36,9 +36,9 @@ class _UserEditPageState extends State<UserEditPage> {
       _data = UserFormData(
           avatar: formdata["avatar"],
           nickname: formdata["nickname"],
-          birthday: (int.parse(formdata["birthday"]) * 1000).toString(),
+          birthday: formdata["birthday"] != null ? (int.parse(formdata["birthday"]) * 1000).toString() : null,
           sex: formdata["sex"] ?? "2",
-          areaDetail: formdata["area_detail"] != null
+          areaDetail: formdata["area_detail"].length > 0
               ? formdata["area_detail"].join(",")
               : null,
           motto: formdata["motto"]);
