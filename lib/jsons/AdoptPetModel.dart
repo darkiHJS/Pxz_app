@@ -12,6 +12,7 @@ class AdoptPetModel {
   String origin;
   String bodyType;
   String hair;
+  String update;
   String health;
   String marketable; // 发布
   String createTime;
@@ -19,8 +20,12 @@ class AdoptPetModel {
   String intro;
   String area;
   String addr;
+  String status;
+  String adopt;
+  bool isCollect; // 是否收藏
+  String readCount;
   String wechatNumber;
-  String wechatQrcode;
+  var wechatQrcode;
   String mobile;
   List<Item> tagList;
   ToMember toMember;
@@ -50,11 +55,13 @@ class AdoptPetModel {
       this.lastModify,
       this.intro,
       this.area,
+      this.update,
       this.addr,
       this.wechatNumber,
       this.wechatQrcode,
       this.mobile,
       this.tagList,
+      this.readCount,
       this.toMember,
       this.category,
       this.adoptionNeeds,
@@ -77,14 +84,19 @@ class AdoptPetModel {
     bodyType = json['body_type'];
     hair = json['hair'];
     health = json['health'];
+    update = json['uptime'];
     marketable = json['marketable'];
     createTime = json['create_time'];
     lastModify = json['last_modify'];
+    readCount = json['read_count'];
     intro = json['intro'];
     area = json['area'];
     addr = json['addr'];
+    adopt = json['adopt'];
+    status = json['status'];
+    isCollect = json['is_collect'];
     wechatNumber = json['wechat_number'];
-    wechatQrcode = json['wechat_qrcode'];
+    wechatQrcode = json['wechat_qrcode'] ?? "";
     mobile = json['mobile'];
     if (json['tag_list'] != null) {
       tagList = new List<Item>();
@@ -130,12 +142,17 @@ class AdoptPetModel {
     data['body_type'] = this.bodyType;
     data['hair'] = this.hair;
     data['health'] = this.health;
+    data['uptime'] = this.update;
+    data['adopt'] = this.adopt;
     data['marketable'] = this.marketable;
     data['create_time'] = this.createTime;
     data['last_modify'] = this.lastModify;
     data['intro'] = this.intro;
     data['area'] = this.area;
     data['addr'] = this.addr;
+    data['status'] = this.status;
+    data['is_collect'] = this.isCollect;
+    data['read_count'] = this.readCount;
     data['wechat_number'] = this.wechatNumber;
     data['wechat_qrcode'] = this.wechatQrcode;
     data['mobile'] = this.mobile;

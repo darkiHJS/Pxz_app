@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hello_world/components/IconFont.dart';
+import 'package:hello_world/jsons/AdoptPetItemModel.dart';
 
 class PetHommingItem extends StatelessWidget {
-  const PetHommingItem({Key key}) : super(key: key);
+  final PetItemData itemData;
+  const PetHommingItem({Key key, this.itemData}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +28,7 @@ class PetHommingItem extends StatelessWidget {
               child: ClipRRect(
                   borderRadius: BorderRadius.circular(4),
                   child: Image.network(
-                    "https://ss0.bdstatic.com/94oJfD_bAAcT8t7mm9GUKT-xh_/timg?image&quality=100&size=b4000_4000&sec=1591584284&di=62825cf7298eca7d381065c195fc1f75&src=http://pic2.zhimg.com/50/4f98a5dd2bbd8b42d41e48331ded917e_hd.jpg",
+                    itemData.imageDefaultId,
                     fit: BoxFit.cover,
                   )),
             ),
@@ -39,13 +41,21 @@ class PetHommingItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Row(
-                    children: <Widget>[Text("小三花"), Text("猫小爪救助")],
+                    children: <Widget>[
+                      Text(itemData.name), 
+                      SizedBox(width: 10,), 
+                      Text(itemData.origin, style: TextStyle(fontSize: 12, color: Colors.black54),)
+                    ],
                   ),
                   Row(
                     children: <Widget>[
-                      Icon(
+                      itemData.sex == "女孩" ? Icon(
                         IconFont.woman,
                         color: Colors.pink,
+                        size: 18,
+                      ) : Icon(
+                        IconFont.man,
+                        color: Colors.blue,
                         size: 18,
                       ),
                       Container(
@@ -56,7 +66,7 @@ class PetHommingItem extends StatelessWidget {
                             borderRadius: BorderRadius.circular(3),
                             color: Colors.black12),
                         child: Text(
-                          "成年",
+                          itemData.ageStage,
                           style: TextStyle(
                             fontSize: 12,
                           ),
@@ -70,7 +80,7 @@ class PetHommingItem extends StatelessWidget {
                             borderRadius: BorderRadius.circular(3),
                             color: Colors.black12),
                         child: Text(
-                          "三花",
+                          itemData.petVarietyId,
                           style: TextStyle(
                             fontSize: 12,
                           ),
@@ -84,7 +94,7 @@ class PetHommingItem extends StatelessWidget {
                             borderRadius: BorderRadius.circular(3),
                             color: Colors.black12),
                         child: Text(
-                          "嘉定新城",
+                          itemData.area.split(",").last,
                           style: TextStyle(
                             fontSize: 12,
                           ),
@@ -93,7 +103,7 @@ class PetHommingItem extends StatelessWidget {
                     ],
                   ),
                   Text(
-                    "流浪猫脚掌都没了，也不知道发生了什么，明天我有笼子之后我会抓她去医院，救助组织的阿姨那里饱",
+                    itemData.intro,
                     maxLines: 2,
                     softWrap: true,
                     overflow: TextOverflow.ellipsis,
@@ -113,7 +123,7 @@ class PetHommingItem extends StatelessWidget {
                           ),
                         ),
                         child: Text(
-                          "已免疫",
+                          itemData.vaccine,
                           style: TextStyle(
                             color: Color(0xfff3d72f),
                             fontSize: 12,
@@ -132,7 +142,7 @@ class PetHommingItem extends StatelessWidget {
                           ),
                         ),
                         child: Text(
-                          "已驱虫",
+                          itemData.deworming,
                           style: TextStyle(
                             color: Color(0xfff3d72f),
                             fontSize: 12,
@@ -151,14 +161,13 @@ class PetHommingItem extends StatelessWidget {
                           ),
                         ),
                         child: Text(
-                          "已绝育",
+                          itemData.sterilization,
                           style: TextStyle(
                             color: Color(0xfff3d72f),
                             fontSize: 12,
                           ),
                         ),
                       ),
-                      
                     ],
                   ),
                 ],

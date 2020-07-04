@@ -101,6 +101,8 @@ flutter:
     - assets/adopt/wechar.png
     - assets/adopt/idCard-1.png
     - assets/adopt/idCard-2.png
+    - assets/adopt/share_claw.png
+    - assets/adopt/packout.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

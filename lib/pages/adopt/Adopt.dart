@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:hello_world/components/IconFont.dart';
+import 'package:hello_world/jsons/AdoptPetItemModel.dart';
 import 'package:hello_world/pages/adopt/AdoptBlackList.dart';
 import 'package:hello_world/pages/adopt/AdoptCertification.dart';
 import 'package:hello_world/pages/adopt/AdoptLicense.dart';
@@ -23,9 +24,14 @@ class AdoptPage extends StatefulWidget {
 class _AdoptPageState extends State<AdoptPage>
     with SingleTickerProviderStateMixin {
   TabController tabController;
+  List<PetItemData> _petItemDatas = []; // 数据列表
+  bool _isMore = true;
+  bool _isLoad = false;
+  int _listPageIndex = 1; // 列表页面下标
 
+  // 弹窗方法
   void _showDialog() async {
-    await  Future.delayed(Duration(microseconds: 50));
+    await Future.delayed(Duration(microseconds: 50));
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -37,8 +43,8 @@ class _AdoptPageState extends State<AdoptPage>
               onPressed: () {
                 // Navigator.of(context).pop();
                 Navigator.of(context).push(MaterialPageRoute(
-                      builder: (BuildContext context) =>
-                          AdoptCertificationPage()));
+                    builder: (BuildContext context) =>
+                        AdoptCertificationPage()));
               },
             ),
           ],
@@ -47,15 +53,29 @@ class _AdoptPageState extends State<AdoptPage>
     );
   }
 
-  Future getPetList() async{
-    var data = await PxzRequest().get(
-      "/pet/index",
-      data: {
-        "page": 1,
-        "limit": 20,
+  // 加载方法
+  Future getPetList() async {
+    setState(() {
+      _isLoad = true;
+    });
+    var data = await PxzRequest().get("/pet/index", data: {
+      "page": _listPageIndex,
+      "limit": 20,
+    });
+    if (data["status"] == "success" && _isMore) {
+      var datas = data["data"]["items"];
+      print(datas);
+      if (datas.length < 20) {
+        _isMore = false;
       }
-    );
-    print(data);
+      for (var item in datas) {
+        PetItemData d = PetItemData.fromJson(item);
+        _petItemDatas.add(d);
+      }
+      setState(() {
+        _isLoad = false;
+      });
+    }
   }
 
   @override
@@ -88,21 +108,21 @@ class _AdoptPageState extends State<AdoptPage>
             alignment: WrapAlignment.spaceAround,
             children: <Widget>[
               GestureDetector(
-                onTap: () async{
+                onTap: () async {
                   var data = await PxzRequest().get("/member/index");
                   print(data);
-                  if(data["data"]["is_verified"] == "2") {
-                     Navigator.of(context).push(MaterialPageRoute(
-                      builder: (BuildContext context) =>
-                          AdoptSongYangFormPage()));
-                  }else {
-                    if(data["data"]["is_verified"] == "1") {
+                  if (data["data"]["is_verified"] == "2") {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (BuildContext context) =>
+                            AdoptSongYangFormPage()));
+                  } else {
+                    if (data["data"]["is_verified"] == "1") {
                       Navigator.of(context).push(MaterialPageRoute(
-                      builder: (BuildContext context) =>
-                          AdoptCertificationPage()));
+                          builder: (BuildContext context) =>
+                              AdoptCertificationPage()));
                       BotToast.showText(text: "请先实名认证。");
                     }
-                    if(data["data"]["is_verified"] == "3") {
+                    if (data["data"]["is_verified"] == "3") {
                       BotToast.showText(text: "认证中，将在三个工作日内完成。");
                     }
                   }
@@ -250,15 +270,42 @@ class _AdoptPageState extends State<AdoptPage>
                     )))),
         SliverList(delegate:
             SliverChildBuilderDelegate((BuildContext context, int index) {
-          return GestureDetector(
-            onTap: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                      builder: (BuildContext context) =>
-                          AdoptPetPage()));
-            },
-            child: PetHommingItem(),
-          );
-        }))
+          Widget child;
+          if (index == _petItemDatas.length) {
+            if (_isMore) {
+              _listPageIndex++;
+              getPetList();
+            } else {
+              child = null;
+            }
+          } else {
+            child = GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (BuildContext context) => AdoptPetPage(id: _petItemDatas[index].id,)));
+              },
+              child: PetHommingItem(
+                itemData: _petItemDatas[index],
+              ),
+            );
+          }
+          return child;
+        })),
+        SliverToBoxAdapter(
+          child: Container(
+            padding: EdgeInsets.only(top: 20, bottom: 40),
+            alignment: Alignment.center,
+            child: _isLoad
+                ? Container(
+                    width: 40,
+                    height: 40,
+                    child: CircularProgressIndicator(
+                      backgroundColor: Colors.grey[200],
+                      valueColor: AlwaysStoppedAnimation(Colors.blue),
+                    ))
+                : _isMore ? null : Text("没有更多了……"),
+          ),
+        )
       ],
     );
   }

@@ -9,6 +9,11 @@ class ConcernPage extends StatefulWidget {
 }
 
 class _ConcernPageState extends State<ConcernPage> {
+
+  @override
+  void initState() {
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return Container(
