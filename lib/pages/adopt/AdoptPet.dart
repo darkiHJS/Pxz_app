@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:hello_world/components/IconFont.dart';
 import 'package:hello_world/jsons/AdoptPetModel.dart';
+import 'package:hello_world/pages/adopt/PetComment.dart';
 import 'package:hello_world/utils/Request.dart';
 
 class AdoptPetPage extends StatefulWidget {
@@ -546,7 +547,11 @@ class _AdoptPetPageState extends State<AdoptPetPage> {
                                               color: Color(0xff8d8d8d)),
                                         )),
                                     FlatButton.icon(
-                                        onPressed: () {},
+                                        onPressed: () {
+                                          Navigator.of(context).push(MaterialPageRoute(
+                                            builder: (BuildContext context) => CommentPage(id: _adoptPetData.id,)
+                                            ));
+                                        },
                                         icon: Icon(Icons.chat_bubble_outline,
                                             color: Color(0xff8d8d8d)),
                                         label: Text("评论",

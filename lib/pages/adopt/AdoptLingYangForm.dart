@@ -1,24 +1,88 @@
+import 'package:bot_toast/bot_toast.dart';
+import 'package:city_pickers/city_pickers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:hello_world/jsons/FormModelLingYang.dart';
 import 'package:hello_world/utils/Request.dart';
+import 'package:hello_world/utils/utils.dart';
+import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 class AdoptLingYangFormPage extends StatefulWidget {
   AdoptLingYangFormPage({Key key}) : super(key: key);
-
   @override
   _AdoptLingYangFormPageState createState() => _AdoptLingYangFormPageState();
 }
 
 class _AdoptLingYangFormPageState extends State<AdoptLingYangFormPage> {
-  Future getFromModel() async {
-    var res = await PxzRequest().get("/member_pexp/detail");
-    print(res);
+  final FormModelLingYang _formModelLingYang = FormModelLingYang();
+  FormDataLingyang _dataLingyang = FormDataLingyang();
+  List<ItemLingYang> _abandon = [];
+  AssetEntity _wechatNumber;
+
+  // 请求不寄养原因
+  Future getReason() async {
+    var res = await PxzRequest().get("/give_up/index");
+    if (res["status"] == "success") {
+      print(res);
+      res["data"].forEach((e) {
+        _abandon.add(ItemLingYang(id: e["id"], title: e["name"]));
+      });
+      setState(() {});
+    }
   }
-  
+
+  // 选择微信二维码
+  selectWechatQR() async {
+    final List<AssetEntity> ass = await AssetPicker.pickAssets(context,
+        requestType: RequestType.image, maxAssets: 1);
+    if (ass == null) {
+      return;
+    }
+    setState(() {
+      _wechatNumber = ass[0];
+    });
+  }
+
+  // 上传图片
+  Future<ImageData> updateImage(AssetEntity ass) async {
+    ImageData img;
+    img = await updateAssetsToAliyun(ass, "image");
+    return img;
+  }
+
+  // submit form
+  submitForm() async {
+    // print(_dataLingyang.verifyForm());
+    // 空置检查
+    var from = {
+      "occupation": _dataLingyang.occupation, // 职业
+      "contact": _dataLingyang.contact, // 联系方式
+      "age": _dataLingyang.age, // 年龄
+      "sex": _dataLingyang.sex, // 性别
+      "wechat": _dataLingyang.wechat,
+      "wechat_img": _dataLingyang.wechatImg,
+      "experience": _dataLingyang.experience,
+      "livi_environment": _dataLingyang.liviEnvironment,
+      "marriage": _dataLingyang.marriage,
+      "family_consent": _dataLingyang.familyConsent,
+      "allergy": _dataLingyang.allergy,
+      "paid": _dataLingyang.paid,
+      "area": _dataLingyang.area,
+      "budget": _dataLingyang.budget,
+      "give_up": _dataLingyang.giveUp
+    };
+    var data = await PxzRequest().post("/member_pexp/add", data: from);
+    print(data);
+    BotToast.showText(text: data["msg"]);
+    if (data["status"] == "success") {
+      Navigator.of(context).pop();
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    getFromModel();
+    getReason();
   }
 
   @override
@@ -36,19 +100,34 @@ class _AdoptLingYangFormPageState extends State<AdoptLingYangFormPage> {
                 "所在城市",
                 style: TextStyle(fontSize: 18),
               ),
-              Container(
-                margin: EdgeInsets.symmetric(vertical: 10),
-                width: 200,
-                padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                color: Color(0xfff6f5f5),
-                child: Row(
-                  children: <Widget>[
-                    Text("         省"),
-                    Text("         市"),
-                    Text("         区"),
-                  ],
-                ),
-              ),
+              GestureDetector(
+                  onTap: () {
+                    CityPickers.showCityPicker(context: context).then((value) {
+                      setState(() {
+                        _dataLingyang.area = [
+                          value.provinceName,
+                          value.cityName,
+                          value.areaName
+                        ];
+                      });
+                    });
+                  },
+                  child: Container(
+                    margin: EdgeInsets.symmetric(vertical: 10),
+                    width: 200,
+                    padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    color: Color(0xfff6f5f5),
+                    child: Text(
+                      _dataLingyang.area != null
+                          ? "${_dataLingyang.area[0]} ${_dataLingyang.area[1]} ${_dataLingyang.area[2]}"
+                          : "请选择所在城市",
+                      style: TextStyle(
+                          color: _dataLingyang.area == null
+                              ? Color(0xff626262)
+                              : Colors.black,
+                          fontSize: 16),
+                    ),
+                  )),
               Text(
                 "性别",
                 style: TextStyle(fontSize: 18),
@@ -57,19 +136,21 @@ class _AdoptLingYangFormPageState extends State<AdoptLingYangFormPage> {
                 margin: EdgeInsets.symmetric(vertical: 10),
                 child: Row(
                   children: <Widget>[
-                    FlatButton(
-                      color: Color(0xfff6f5f5),
-                      onPressed: () {},
-                      child: Text("男孩"),
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    FlatButton(
-                      color: Color(0xfff6f5f5),
-                      onPressed: () {},
-                      child: Text("女孩"),
-                    ),
+                    for (var item in _formModelLingYang.sex)
+                      Container(
+                        margin: EdgeInsets.only(right: 10),
+                        child: FlatButton(
+                          color: _dataLingyang.sex == item.id
+                              ? Color(0xfff4cd20)
+                              : Color(0xfff6f5f5),
+                          onPressed: () {
+                            setState(() {
+                              _dataLingyang.sex = item.id;
+                            });
+                          },
+                          child: Text(item.title),
+                        ),
+                      )
                   ],
                 ),
               ),
@@ -80,43 +161,22 @@ class _AdoptLingYangFormPageState extends State<AdoptLingYangFormPage> {
               Container(
                 margin: EdgeInsets.symmetric(vertical: 10),
                 child: Wrap(
-                  spacing: 10,
                   children: <Widget>[
-                    FlatButton(
-                      color: Color(0xfff6f5f5),
-                      onPressed: () {},
-                      child: Text("18岁以下"),
-                    ),
-                    FlatButton(
-                      color: Color(0xfff6f5f5),
-                      onPressed: () {},
-                      child: Text("18~25"),
-                    ),
-                    FlatButton(
-                      color: Color(0xfff6f5f5),
-                      onPressed: () {},
-                      child: Text("26~30"),
-                    ),
-                    FlatButton(
-                      color: Color(0xfff6f5f5),
-                      onPressed: () {},
-                      child: Text("31~40"),
-                    ),
-                    FlatButton(
-                      color: Color(0xfff6f5f5),
-                      onPressed: () {},
-                      child: Text("41~50"),
-                    ),
-                    FlatButton(
-                      color: Color(0xfff6f5f5),
-                      onPressed: () {},
-                      child: Text("51~60"),
-                    ),
-                    FlatButton(
-                      color: Color(0xfff6f5f5),
-                      onPressed: () {},
-                      child: Text("60以上"),
-                    ),
+                    for (var item in _formModelLingYang.age)
+                      Container(
+                        margin: EdgeInsets.only(right: 10),
+                        child: FlatButton(
+                          color: _dataLingyang.age == item.id
+                              ? Color(0xfff4cd20)
+                              : Color(0xfff6f5f5),
+                          onPressed: () {
+                            setState(() {
+                              _dataLingyang.age = item.id;
+                            });
+                          },
+                          child: Text(item.title),
+                        ),
+                      )
                   ],
                 ),
               ),
@@ -128,19 +188,34 @@ class _AdoptLingYangFormPageState extends State<AdoptLingYangFormPage> {
                 margin: EdgeInsets.symmetric(vertical: 10),
                 child: Row(
                   children: <Widget>[
-                    FlatButton(
-                      color: Color(0xfff6f5f5),
-                      onPressed: () {},
-                      child: Text("有"),
+                    Container(
+                      margin: EdgeInsets.only(right: 10),
+                      child: FlatButton(
+                        color: _dataLingyang.experience
+                            ? Color(0xfff4cd20)
+                            : Color(0xfff6f5f5),
+                        onPressed: () {
+                          setState(() {
+                            _dataLingyang.experience = true;
+                          });
+                        },
+                        child: Text("有"),
+                      ),
                     ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    FlatButton(
-                      color: Color(0xfff6f5f5),
-                      onPressed: () {},
-                      child: Text("无"),
-                    ),
+                    Container(
+                      margin: EdgeInsets.only(right: 10),
+                      child: FlatButton(
+                        color: _dataLingyang.experience
+                            ? Color(0xfff6f5f5)
+                            : Color(0xfff4cd20),
+                        onPressed: () {
+                          setState(() {
+                            _dataLingyang.experience = false;
+                          });
+                        },
+                        child: Text("无"),
+                      ),
+                    )
                   ],
                 ),
               ),
@@ -153,50 +228,24 @@ class _AdoptLingYangFormPageState extends State<AdoptLingYangFormPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-                        alignment: AlignmentDirectional.center,
-                        color: Color(0xfff6f5f5),
-                        width: 80,
-                        child: Text("200~300"),
+                    for (var item in _formModelLingYang.budget)
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _dataLingyang.budget = item.id;
+                          });
+                        },
+                        child: Container(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+                          alignment: AlignmentDirectional.center,
+                          color: _dataLingyang.budget == item.id
+                              ? Color(0xfff4cd20)
+                              : Color(0xfff6f5f5),
+                          width: 80,
+                          child: Text(item.title),
+                        ),
                       ),
-                    ),
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-                        alignment: AlignmentDirectional.center,
-                        color: Color(0xfff6f5f5),
-                        width: 80,
-                        child: Text("300~500"),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-                        alignment: AlignmentDirectional.center,
-                        color: Color(0xfff6f5f5),
-                        width: 80,
-                        child: Text("500~800"),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-                        alignment: AlignmentDirectional.center,
-                        color: Color(0xfff6f5f5),
-                        width: 80,
-                        child: Text("1000+"),
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -210,72 +259,24 @@ class _AdoptLingYangFormPageState extends State<AdoptLingYangFormPage> {
                   spacing: 10,
                   runSpacing: 10,
                   children: <Widget>[
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-                        alignment: AlignmentDirectional.center,
-                        color: Color(0xfff6f5f5),
-                        width: 80,
-                        child: Text("高中"),
+                    for (var item in _formModelLingYang.occupation)
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _dataLingyang.occupation = item.id;
+                          });
+                        },
+                        child: Container(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+                          alignment: AlignmentDirectional.center,
+                          color: _dataLingyang.occupation == item.id
+                              ? Color(0xfff4cd20)
+                              : Color(0xfff6f5f5),
+                          width: 80,
+                          child: Text(item.title),
+                        ),
                       ),
-                    ),
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-                        alignment: AlignmentDirectional.center,
-                        color: Color(0xfff6f5f5),
-                        width: 80,
-                        child: Text("大学"),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-                        alignment: AlignmentDirectional.center,
-                        color: Color(0xfff6f5f5),
-                        width: 80,
-                        child: Text("国企"),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-                        alignment: AlignmentDirectional.center,
-                        color: Color(0xfff6f5f5),
-                        width: 80,
-                        child: Text("私企"),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-                        alignment: AlignmentDirectional.center,
-                        color: Color(0xfff6f5f5),
-                        width: 80,
-                        child: Text("自由职业"),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-                        alignment: AlignmentDirectional.center,
-                        color: Color(0xfff6f5f5),
-                        width: 80,
-                        child: Text("创业"),
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -289,50 +290,24 @@ class _AdoptLingYangFormPageState extends State<AdoptLingYangFormPage> {
                   spacing: 10,
                   runSpacing: 10,
                   children: <Widget>[
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-                        alignment: AlignmentDirectional.center,
-                        color: Color(0xfff6f5f5),
-                        width: 80,
-                        child: Text("自己整租"),
+                    for (var item in _formModelLingYang.liviEnvironment)
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _dataLingyang.liviEnvironment = item.id;
+                          });
+                        },
+                        child: Container(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+                          alignment: AlignmentDirectional.center,
+                          color: _dataLingyang.liviEnvironment == item.id
+                              ? Color(0xfff4cd20)
+                              : Color(0xfff6f5f5),
+                          width: 80,
+                          child: Text(item.title),
+                        ),
                       ),
-                    ),
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-                        alignment: AlignmentDirectional.center,
-                        color: Color(0xfff6f5f5),
-                        width: 80,
-                        child: Text("合租单间"),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-                        alignment: AlignmentDirectional.center,
-                        color: Color(0xfff6f5f5),
-                        width: 80,
-                        child: Text("自有房"),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-                        alignment: AlignmentDirectional.center,
-                        color: Color(0xfff6f5f5),
-                        width: 80,
-                        child: Text("父母同住"),
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -346,39 +321,34 @@ class _AdoptLingYangFormPageState extends State<AdoptLingYangFormPage> {
                   spacing: 10,
                   runSpacing: 10,
                   children: <Widget>[
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-                        alignment: AlignmentDirectional.center,
-                        color: Color(0xfff6f5f5),
-                        width: 80,
+                    Container(
+                      margin: EdgeInsets.only(right: 10),
+                      child: FlatButton(
+                        color: _dataLingyang.marriage
+                            ? Color(0xfff4cd20)
+                            : Color(0xfff6f5f5),
+                        onPressed: () {
+                          setState(() {
+                            _dataLingyang.marriage = true;
+                          });
+                        },
                         child: Text("已婚"),
                       ),
                     ),
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-                        alignment: AlignmentDirectional.center,
-                        color: Color(0xfff6f5f5),
-                        width: 80,
+                    Container(
+                      margin: EdgeInsets.only(right: 10),
+                      child: FlatButton(
+                        color: _dataLingyang.marriage
+                            ? Color(0xfff6f5f5)
+                            : Color(0xfff4cd20),
+                        onPressed: () {
+                          setState(() {
+                            _dataLingyang.marriage = false;
+                          });
+                        },
                         child: Text("未婚"),
                       ),
-                    ),
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-                        alignment: AlignmentDirectional.center,
-                        color: Color(0xfff6f5f5),
-                        width: 80,
-                        child: Text("离异"),
-                      ),
-                    ),
+                    )
                   ],
                 ),
               ),
@@ -391,60 +361,164 @@ class _AdoptLingYangFormPageState extends State<AdoptLingYangFormPage> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
-                      Column(
-                        children: <Widget>[
-                          Row(
-                            children: <Widget>[
-                              Text("手机号"),
-                              Container(
-                                margin: EdgeInsets.only(left: 10),
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 10, horizontal: 10),
-                                decoration: BoxDecoration(
-                                    color: Color(0xfff6f5f5),
-                                    borderRadius: BorderRadius.circular(3)),
-                                width: 150,
-                                child: TextField(
-                                  decoration: null,
+                      Expanded(
+                        child: Column(
+                          children: <Widget>[
+                            Row(
+                              children: <Widget>[
+                                SizedBox(
+                                  width: 50,
+                                  child: Text("手机"),
                                 ),
-                              )
-                            ],
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Row(
-                            children: <Widget>[
-                              Text("微信号"),
-                              Container(
-                                margin: EdgeInsets.only(left: 10),
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 10, horizontal: 10),
-                                decoration: BoxDecoration(
-                                    color: Color(0xfff6f5f5),
-                                    borderRadius: BorderRadius.circular(3)),
-                                width: 150,
-                                child: TextField(
-                                  decoration: null,
+                                Expanded(
+                                    child: Container(
+                                  margin: EdgeInsets.only(left: 10),
+                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                  decoration: BoxDecoration(
+                                      color: Color(0xfff6f5f5),
+                                      borderRadius: BorderRadius.circular(3)),
+                                  width: 150,
+                                  child: TextField(
+                                    onChanged: (v) {
+                                      _dataLingyang.contact = v;
+                                    },
+                                    controller: TextEditingController()
+                                      ..text = _dataLingyang.contact,
+                                    keyboardType: TextInputType.phone,
+                                    style: TextStyle(fontSize: 12),
+                                    decoration: InputDecoration(
+                                        hintText: "手机联系方式",
+                                        hintStyle: TextStyle(
+                                            color: Color(0xff626262),
+                                            fontSize: 12),
+                                        border: InputBorder.none,
+                                        counterText: "",
+                                        fillColor: Color(0xfff6f5f5)),
+                                  ),
+                                ))
+                              ],
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Row(
+                              children: <Widget>[
+                                SizedBox(
+                                  width: 50,
+                                  child: Text("微信"),
                                 ),
-                              )
-                            ],
-                          ),
-                        ],
+                                Expanded(
+                                    child: Container(
+                                  margin: EdgeInsets.only(left: 10),
+                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                  decoration: BoxDecoration(
+                                      color: Color(0xfff6f5f5),
+                                      borderRadius: BorderRadius.circular(3)),
+                                  width: 150,
+                                  child: TextField(
+                                    onChanged: (v) {
+                                      _dataLingyang.wechat = v;
+                                    },
+                                    controller: TextEditingController()
+                                      ..text = _dataLingyang.wechat,
+                                    style: TextStyle(fontSize: 12),
+                                    decoration: InputDecoration(
+                                      hintText: "微信联系方式",
+                                      hintStyle: TextStyle(
+                                          color: Color(0xff626262),
+                                          fontSize: 12),
+                                      border: InputBorder.none,
+                                      counterText: "",
+                                    ),
+                                  ),
+                                )),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                      Container(
-                          margin: EdgeInsets.only(left: 30),
-                          padding: EdgeInsets.all(10),
-                          alignment: AlignmentDirectional.center,
-                          decoration: BoxDecoration(
-                              color: Color(0xfff6f5f5),
-                              borderRadius: BorderRadius.circular(3)),
-                          width: 90,
-                          height: 90,
-                          child: Text(
-                            "请提交一张微信二维码",
-                            style: TextStyle(fontSize: 12),
-                          ))
+                      _wechatNumber == null
+                          ? GestureDetector(
+                              onTap: () {
+                                selectWechatQR();
+                              },
+                              child: Container(
+                                  margin: EdgeInsets.only(left: 10),
+                                  padding: EdgeInsets.all(20),
+                                  alignment: AlignmentDirectional.center,
+                                  decoration: BoxDecoration(
+                                      color: Color(0xfff6f5f5),
+                                      borderRadius: BorderRadius.circular(3)),
+                                  width: 105,
+                                  height: 105,
+                                  child: Text(
+                                    "请提交一张微信二维码",
+                                    style: TextStyle(fontSize: 12),
+                                  )))
+                          : FutureBuilder(
+                              future: updateImage(_wechatNumber),
+                              builder: (BuildContext context,
+                                  AsyncSnapshot<ImageData> snapshot) {
+                                Widget child = Text("");
+                                if (snapshot.hasData) {
+                                  _dataLingyang.wechatImg = snapshot.data.md5;
+                                  child = Container(
+                                    height: 90,
+                                    width: 90,
+                                    child: Image.network(
+                                      snapshot.data.url,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  );
+                                } else if (snapshot.hasError) {
+                                  BotToast.showText(text: "图片上传失败");
+                                } else {
+                                  child = Container(
+                                      width: 40,
+                                      height: 40,
+                                      child: CircularProgressIndicator(
+                                        backgroundColor: Colors.grey[200],
+                                        valueColor:
+                                            AlwaysStoppedAnimation(Colors.blue),
+                                      ));
+                                }
+                                return Container(
+                                  margin: EdgeInsets.only(left: 10),
+                                  width: 105,
+                                  height: 105,
+                                  child: Stack(
+                                    alignment: Alignment.center,
+                                    children: <Widget>[
+                                      child,
+                                      Positioned(
+                                          top: 0,
+                                          right: 0,
+                                          child: GestureDetector(
+                                              onTap: () {
+                                                setState(() {
+                                                  _dataLingyang.wechatImg =
+                                                      null;
+                                                  _wechatNumber = null;
+                                                });
+                                              },
+                                              child: Container(
+                                                width: 20,
+                                                height: 20,
+                                                decoration: BoxDecoration(
+                                                    color: Colors.red,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            50)),
+                                                child: Icon(
+                                                  Icons.remove,
+                                                  color: Colors.white,
+                                                  size: 18,
+                                                ),
+                                              )))
+                                    ],
+                                  ),
+                                );
+                              })
                     ],
                   )),
               Text(
@@ -457,28 +531,34 @@ class _AdoptLingYangFormPageState extends State<AdoptLingYangFormPage> {
                   spacing: 10,
                   runSpacing: 10,
                   children: <Widget>[
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-                        alignment: AlignmentDirectional.center,
-                        color: Color(0xfff6f5f5),
-                        width: 80,
+                    Container(
+                      margin: EdgeInsets.only(right: 10),
+                      child: FlatButton(
+                        color: _dataLingyang.familyConsent
+                            ? Color(0xfff4cd20)
+                            : Color(0xfff6f5f5),
+                        onPressed: () {
+                          setState(() {
+                            _dataLingyang.familyConsent = true;
+                          });
+                        },
                         child: Text("同意"),
                       ),
                     ),
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-                        alignment: AlignmentDirectional.center,
-                        color: Color(0xfff6f5f5),
-                        width: 80,
+                    Container(
+                      margin: EdgeInsets.only(right: 10),
+                      child: FlatButton(
+                        color: _dataLingyang.familyConsent
+                            ? Color(0xfff6f5f5)
+                            : Color(0xfff4cd20),
+                        onPressed: () {
+                          setState(() {
+                            _dataLingyang.familyConsent = false;
+                          });
+                        },
                         child: Text("不同意"),
                       ),
-                    ),
+                    )
                   ],
                 ),
               ),
@@ -492,28 +572,24 @@ class _AdoptLingYangFormPageState extends State<AdoptLingYangFormPage> {
                   spacing: 10,
                   runSpacing: 10,
                   children: <Widget>[
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-                        alignment: AlignmentDirectional.center,
-                        color: Color(0xfff6f5f5),
-                        width: 80,
-                        child: Text("有"),
+                    for (var item in _formModelLingYang.allergy)
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _dataLingyang.allergy = item.id;
+                          });
+                        },
+                        child: Container(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+                          alignment: AlignmentDirectional.center,
+                          color: _dataLingyang.allergy == item.id
+                              ? Color(0xfff4cd20)
+                              : Color(0xfff6f5f5),
+                          width: 80,
+                          child: Text(item.title),
+                        ),
                       ),
-                    ),
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-                        alignment: AlignmentDirectional.center,
-                        color: Color(0xfff6f5f5),
-                        width: 80,
-                        child: Text("没有"),
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -527,28 +603,34 @@ class _AdoptLingYangFormPageState extends State<AdoptLingYangFormPage> {
                   spacing: 10,
                   runSpacing: 10,
                   children: <Widget>[
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-                        alignment: AlignmentDirectional.center,
-                        color: Color(0xfff6f5f5),
-                        width: 80,
+                    Container(
+                      margin: EdgeInsets.only(right: 10),
+                      child: FlatButton(
+                        color: _dataLingyang.paid
+                            ? Color(0xfff4cd20)
+                            : Color(0xfff6f5f5),
+                        onPressed: () {
+                          setState(() {
+                            _dataLingyang.paid = true;
+                          });
+                        },
                         child: Text("同意"),
                       ),
                     ),
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-                        alignment: AlignmentDirectional.center,
-                        color: Color(0xfff6f5f5),
-                        width: 80,
+                    Container(
+                      margin: EdgeInsets.only(right: 10),
+                      child: FlatButton(
+                        color: _dataLingyang.paid
+                            ? Color(0xfff6f5f5)
+                            : Color(0xfff4cd20),
+                        onPressed: () {
+                          setState(() {
+                            _dataLingyang.paid = false;
+                          });
+                        },
                         child: Text("不同意"),
                       ),
-                    ),
+                    )
                   ],
                 ),
               ),
@@ -564,34 +646,21 @@ class _AdoptLingYangFormPageState extends State<AdoptLingYangFormPage> {
                   spacing: 10,
                   runSpacing: 10,
                   children: <Widget>[
-                    AdoptSongYangFormCheckBox(
-                      value: false,
-                      title: Text("离婚或分手"),
-                    ),
-                    AdoptSongYangFormCheckBox(
-                      value: true,
-                      title: Text("家人生病"),
-                    ),
-                    AdoptSongYangFormCheckBox(
-                      value: false,
-                      title: Text("搬家"),
-                    ),
-                    AdoptSongYangFormCheckBox(
-                      value: false,
-                      title: Text("怀孕"),
-                    ),
-                    AdoptSongYangFormCheckBox(
-                      value: false,
-                      title: Text("离职"),
-                    ),
-                    AdoptSongYangFormCheckBox(
-                      value: false,
-                      title: Text("猫咪破坏家具"),
-                    ),
-                    AdoptSongYangFormCheckBox(
-                      value: false,
-                      title: Text("猫咪具有破坏行为或有不友好表现"),
-                    ),
+                    for (var item in _abandon)
+                      AdoptSongYangFormCheckBox(
+                        onTap: () {
+                          var index = _dataLingyang.giveUp.indexOf(item.id);
+                          setState(() {
+                            if (index == -1) {
+                              _dataLingyang.giveUp.add(item.id);
+                            } else {
+                              _dataLingyang.giveUp.removeAt(index);
+                            }
+                          });
+                        },
+                        state: _dataLingyang.giveUp.indexOf(item.id) != -1,
+                        title: Text(item.title),
+                      ),
                   ],
                 ),
               ),
@@ -603,8 +672,13 @@ class _AdoptLingYangFormPageState extends State<AdoptLingYangFormPage> {
                     height: 50,
                     child: FlatButton(
                         color: Color(0xfff3d72f),
-                        onPressed: () {},
-                        child: Text("提交", style: TextStyle(fontSize: 20),)),
+                        onPressed: () {
+                          submitForm();
+                        },
+                        child: Text(
+                          "提交",
+                          style: TextStyle(fontSize: 20),
+                        )),
                   ))
             ],
           ),
@@ -614,13 +688,14 @@ class _AdoptLingYangFormPageState extends State<AdoptLingYangFormPage> {
   }
 }
 
+// ignore: must_be_immutable
 class AdoptSongYangFormCheckBox extends StatefulWidget {
-  bool value;
+  bool state;
   Widget title;
-  Function(bool) onChanged;
+  Function onTap;
 
   AdoptSongYangFormCheckBox(
-      {Key key, this.title, @required this.value, this.onChanged})
+      {Key key, this.title, @required this.state, this.onTap})
       : super(key: key);
 
   @override
@@ -632,28 +707,28 @@ class _AdoptSongYangFormCheckBoxState extends State<AdoptSongYangFormCheckBox> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          widget.value = !widget.value;
-        });
-      },
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Container(
-              width: 18,
-              height: 18,
-              padding: EdgeInsets.all(2),
-              decoration: BoxDecoration(
-                  color: widget.value ? Color(0xfff4cd20) : Colors.transparent,
-                  border: Border.all(color: Color(0xff626262), width: 1),
-                  borderRadius: BorderRadius.circular(6))),
-          SizedBox(
-            width: 3,
+        onTap: () {
+          widget.onTap();
+        },
+        child: Container(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Container(
+                  width: 18,
+                  height: 18,
+                  padding: EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                      color:
+                          widget.state ? Color(0xfff4cd20) : Colors.transparent,
+                      border: Border.all(color: Color(0xff626262), width: 1),
+                      borderRadius: BorderRadius.circular(6))),
+              SizedBox(
+                width: 3,
+              ),
+              widget.title
+            ],
           ),
-          widget.title
-        ],
-      ),
-    );
+        ));
   }
 }
