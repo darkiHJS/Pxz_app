@@ -97,7 +97,6 @@ class _AdoptLicensePageState extends State<AdoptLicensePage> {
               itemCount: 3,
               itemBuilder: (BuildContext context, int index) {
                 return AdoptLicenseItem(); 
-
               },
             )
             )

@@ -1,10 +1,11 @@
 class CommentItem {
   String id;
   String content;
-  // Null createTime;
   String memberId;
   String praiseNum;
   String rescueId;
+  String createTime;
+  bool isLike;
   // Null startId;
   // Null toMemberId;
   // Null toMemberNickname;
@@ -15,10 +16,11 @@ class CommentItem {
   CommentItem(
       {this.id,
       this.content,
-      // this.createTime,
+      this.createTime,
       this.memberId,
       this.praiseNum,
       this.rescueId,
+      this.isLike,
       // this.startId,
       // this.toMemberId,
       // this.toMemberNickname,
@@ -29,10 +31,11 @@ class CommentItem {
   CommentItem.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     content = json['content'];
-    // createTime = json['create_time'];
+    createTime = json['create_time'];
     memberId = json['member_id'];
     praiseNum = json['praise_num'];
     rescueId = json['rescue_id'];
+    isLike = json['is_like'];
     // startId = json['start_id'];
     // toMemberId = json['to_member_id'];
     // toMemberNickname = json['to_member_nickname'];
@@ -52,10 +55,11 @@ class CommentItem {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['id'] = this.id;
     data['content'] = this.content;
-    // data['create_time'] = this.createTime;
+    data['create_time'] = this.createTime;
     data['member_id'] = this.memberId;
     data['praise_num'] = this.praiseNum;
     data['rescue_id'] = this.rescueId;
+    data['is_like'] = this.isLike;
     // data['start_id'] = this.startId;
     // data['to_member_id'] = this.toMemberId;
     // data['to_member_nickname'] = this.toMemberNickname;
@@ -104,8 +108,8 @@ class CommentItemChildrens {
   String toMemberNickname;
   String praiseNum;
   String status;
-  // Null createTime;
-  // Null updateTime;
+  String createTime;
+  bool isLike;
   MemberDetail memberDetail;
 
   CommentItemChildrens(
@@ -120,8 +124,8 @@ class CommentItemChildrens {
       this.toMemberNickname,
       this.praiseNum,
       this.status,
-      // this.createTime,
-      // this.updateTime,
+      this.createTime,
+      this.isLike,
       this.memberDetail});
 
   CommentItemChildrens.fromJson(Map<String, dynamic> json) {
@@ -136,8 +140,8 @@ class CommentItemChildrens {
     toMemberNickname = json['to_member_nickname'];
     praiseNum = json['praise_num'];
     status = json['status'];
-    // createTime = json['create_time'];
-    // updateTime = json['update_time'];
+    createTime = json['create_time'];
+    isLike = json['is_like'];
     memberDetail = json['member_detail'] != null
         ? new MemberDetail.fromJson(json['member_detail'])
         : null;
@@ -156,7 +160,8 @@ class CommentItemChildrens {
     data['to_member_nickname'] = this.toMemberNickname;
     data['praise_num'] = this.praiseNum;
     data['status'] = this.status;
-    // data['create_time'] = this.createTime;
+    data['create_time'] = this.createTime;
+    data['is_like'] = this.isLike;
     // data['update_time'] = this.updateTime;
     if (this.memberDetail != null) {
       data['member_detail'] = this.memberDetail.toJson();
