@@ -1,10 +1,15 @@
-import 'dart:io';
-
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:dio/dio.dart';
+import 'package:flutter_swiper/flutter_swiper.dart';
+import 'package:hello_world/jsons/HomeDiscoveryDataModel.dart';
+import 'package:hello_world/utils/Request.dart';
 
-Dio dio = new Dio();
+/// 详情页路由
+/// 文章
+/// 视频
+import 'package:hello_world/pages/home/DetailsArticle.dart';
+import 'package:hello_world/pages/home/DetailsVideo.dart';
 
 class ExaidPage extends StatefulWidget {
   ExaidPage({Key key}) : super(key: key);
@@ -14,67 +19,86 @@ class ExaidPage extends StatefulWidget {
 }
 
 class _ExaidPageState extends State<ExaidPage> {
+  List<DiscoveryDataItem> discoverItems = [];
+  @override
+  void initState() {
+    super.initState();
+    getData() async {
+      Map<String, dynamic> requ = await PxzRequest()
+          .get("/index/index", data: {"page": 1, "limit": 20});
+      print(requ);
+      List<dynamic> reqs = requ["data"]["items"];
+      setState(() {
+        discoverItems = reqs.map((e) => DiscoveryDataItem.fromJson(e)).toList();
+      });
+    }
+
+    getData();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return NestedScrollView(
-      headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-        return <Widget>[
-          SliverAppBar(
-            expandedHeight: 200.0,
-            backgroundColor: Colors.transparent,
-            floating: false,
-            snap: false,
-            pinned: false,
-            actions: [Container()],
-            flexibleSpace: FlexibleSpaceBar(
-                // centerTitle: true,
-                title: Text(""),
-                background: NekoBanner()),
-          )
-        ];
-      },
-      body: Container(
-          margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
-          child: StaggeredGridView.countBuilder(
-            addAutomaticKeepAlives: true,
+    return CustomScrollView(
+      slivers: <Widget>[
+        SliverAppBar(
+          expandedHeight: 190.0,
+          backgroundColor: Colors.transparent,
+          flexibleSpace: FlexibleSpaceBar(background: NekoSwiper()),
+          actions: <Widget>[Container()],
+        ),
+        SliverPadding(
+          padding: EdgeInsets.all(5),
+          sliver: SliverStaggeredGrid.countBuilder(
             crossAxisCount: 4,
-            itemCount: 10,
-            itemBuilder: (BuildContext context, int index) => ProgramItem(),
+            itemCount: discoverItems?.length,
+            itemBuilder: (BuildContext context, int index) => ProgramItem(
+              discoveryDataItem: discoverItems[index],
+            ),
             staggeredTileBuilder: (int index) => StaggeredTile.fit(2),
-            mainAxisSpacing: 6.0,
-            crossAxisSpacing: 6.0,
-          )),
+            mainAxisSpacing: 5.0,
+            crossAxisSpacing: 5.0,
+          ),
+        )
+      ],
     );
   }
 }
 
-class NekoBanner extends StatefulWidget {
-  NekoBanner({Key key}) : super(key: key);
+///
+/// 轮播图
+///
+class NekoSwiper extends StatelessWidget {
+  static List<Widget> swiperItem = [
+    CachedNetworkImage(
+      fit: BoxFit.fitWidth,
+      placeholder: (context, url) => Image.asset("assets/home/loading.png"),
+      imageUrl: "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=2364654808,1367649755&fm=26&gp=0.jpg",
+      errorWidget: (context, url, error) => Icon(Icons.error),
+    ),
+    CachedNetworkImage(
+      fit: BoxFit.fitWidth,
+      placeholder: (context, url) => Image.asset("assets/home/loading.png"),
+      imageUrl: "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1589795536301&di=e65c12f32f0969f9337c309db95209cb&imgtype=0&src=http%3A%2F%2Fwww.chabeichong.com%2Fimages%2F2016%2F10%2F21-06155760.jpg",
+      errorWidget: (context, url, error) => Icon(Icons.error),
+    )
+  ];
+  const NekoSwiper({Key key}) : super(key: key);
 
-  @override
-  _NekoBannerState createState() => _NekoBannerState();
-}
-
-class _NekoBannerState extends State<NekoBanner> {
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return Container(
+      child: Stack(
       children: <Widget>[
         Container(
-            margin: EdgeInsets.fromLTRB(10, 12, 10, 0),
+            margin: EdgeInsets.fromLTRB(5, 12, 5, 0),
             child: ClipRRect(
-              borderRadius: BorderRadius.all(Radius.circular(20.0)),
-              child: PageView(
-                children: <Widget>[
-                  Image.network(
-                    "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=2364654808,1367649755&fm=26&gp=0.jpg",
-                    fit: BoxFit.fitWidth,
-                  ),
-                  Image.network(
-                    "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1589795536301&di=e65c12f32f0969f9337c309db95209cb&imgtype=0&src=http%3A%2F%2Fwww.chabeichong.com%2Fimages%2F2016%2F10%2F21-06155760.jpg",
-                    fit: BoxFit.fitWidth,
-                  )
-                ],
+              borderRadius: BorderRadius.all(Radius.circular(3.0)),
+              child: Swiper(
+                itemBuilder: (BuildContext context,int index) {
+                  return swiperItem[index];
+                },
+                itemCount: 2,
+                pagination: SwiperPagination(),
               ),
             )),
         Positioned(
@@ -92,50 +116,27 @@ class _NekoBannerState extends State<NekoBanner> {
           child: Image.asset("assets/home/swiper_decorate_right.png"),
         )
       ],
+    )
     );
   }
 }
 
-class ProgramItem extends StatefulWidget {
-  ProgramItem({Key key}) : super(key: key);
-
-  @override
-  _ProgramItemState createState() => _ProgramItemState();
-}
-
-class _ProgramItemState extends State<ProgramItem> {
-  String _imgUrl = "";
-  void getHttp() async {
-    try {
-      Response response = await dio.get(
-          "http://shibe.online/api/shibes?count=1&urls=false&httpsUrls=true");
-      if (response.statusCode == HttpStatus.ok) {
-        var data = response.toString();
-        setState(() {
-          _imgUrl =
-              "https://cdn.shibe.online/shibes/${data.substring(1, data.length - 1)}.jpg";
-        });
-      }
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    getHttp();
-  }
-
+///
+/// 页面展示小卡片
+///
+class ProgramItem extends StatelessWidget {
+  const ProgramItem({Key key, this.discoveryDataItem}) : super(key: key);
+  final DiscoveryDataItem discoveryDataItem;
   @override
   Widget build(BuildContext context) {
     return Container(
+        child: Container(
       decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(11.0),
+          borderRadius: BorderRadius.circular(3.0),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
+              color: Colors.grey.withOpacity(0.2),
               spreadRadius: 0.5,
               blurRadius: 0.3,
               offset: Offset(0, 0.5),
@@ -143,42 +144,86 @@ class _ProgramItemState extends State<ProgramItem> {
           ]),
       child: Column(
         children: <Widget>[
-          _imgUrl != ""
-              ? ClipRRect(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(11)),
-                  child: FadeInImage.assetNetwork(
-                    placeholder:  "assets/navigationbar/bar4.png",
-                    image: _imgUrl
-                  )
-                )
-              : Text(""),
-          Container(
-            margin: EdgeInsets.fromLTRB(5, 10, 10, 5),
-            child: Text("黑化肥很黑化肥很黑化肥很黑化肥很黑化肥很黑化肥很黑化"),
+          GestureDetector(
+            onTap: () {
+              if (discoveryDataItem.resourceType == "video") {
+                Navigator.push(context, MaterialPageRoute(builder:(context) => DetailsVideoPage(id: discoveryDataItem.id)));
+              } else {
+                Navigator.push(context, MaterialPageRoute(builder:(context) => DetailsArticlePage(id: discoveryDataItem.id,)));              
+              }
+            },
+            child: Stack(
+              children: <Widget>[
+                ClipRRect(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(3)),
+                child: discoveryDataItem.mainDefaultId != null
+                    ? CachedNetworkImage (
+                      placeholder: (context, url) => Image.asset("assets/home/loading.png"),
+                      imageUrl: discoveryDataItem.mainDefaultId,
+                    ) 
+                    : Image.asset("assets/home/loading.png")),
+                discoveryDataItem.resourceType == "video" ?  
+                Positioned(
+                  right: 5,
+                  bottom: 5,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black26,
+                      borderRadius: BorderRadius.all(Radius.circular(25)),
+                    ),
+                    child: Icon(Icons.play_arrow, color: Colors.white, size: 25,),
+                  ) 
+                ) : 
+                SizedBox.shrink() 
+              ],
+            )
           ),
           Container(
-            padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
+            margin: EdgeInsets.fromLTRB(5, 10, 10, 5),
+            child: Text(
+              discoveryDataItem.title,
+              textAlign: TextAlign.left,
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.fromLTRB(7, 0, 7, 0),
             height: 35.0,
             child: Row(
               children: <Widget>[
-                CircleAvatar(
-                  radius: 10,
-                  backgroundImage: NetworkImage(
-                    "https://timable.com/res/pic/84e4cdc6a00ef38cf9c8a48a0b1f3f0f3.jpg"),
+                Container(
+                  padding: EdgeInsets.fromLTRB(0, 0, 6, 0),
+                  child: CircleAvatar(
+                    radius: 10,
+                    backgroundImage:
+                        NetworkImage(discoveryDataItem.memberDetail.avatar),
+                  ),
                 ),
-                Text("派小爪", style: TextStyle(fontSize: 10),),
+                Text(
+                  discoveryDataItem.memberDetail.nickname,
+                  style: TextStyle(
+                    fontSize: 10,
+                  ),
+                ),
                 Expanded(child: Text("")),
-                FlatButton.icon(
-                  padding: EdgeInsets.zero,
-                  icon: Icon(Icons.favorite, color: Color(0xfff3d72f), size: 15,), 
-                  label: Text("1113", style: TextStyle(fontSize: 10),),
-                  onPressed: null
+                SizedBox(
+                  width: 28,
+                  child: IconButton(
+                      icon: Icon(
+                        Icons.favorite,
+                        color: Color(0xfff3d72f),
+                        size: 15,
+                      ),
+                      onPressed: null),
+                ),
+                Text(
+                  discoveryDataItem.likeNum,
+                  style: TextStyle(fontSize: 10),
                 )
               ],
             ),
           ),
         ],
       ),
-    );
+    ));
   }
 }

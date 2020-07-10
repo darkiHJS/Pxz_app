@@ -1,9 +1,11 @@
-import 'dart:io';
-
-import 'package:dio/dio.dart';
+import 'package:bot_toast/bot_toast.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:hello_world/pages/home/Exaid.dart';
+import 'package:hello_world/jsons/HomeDiscoveryDataModel.dart';
+import 'package:hello_world/pages/home/DetailsArticle.dart';
+import 'package:hello_world/pages/home/DetailsVideo.dart';
+import 'package:hello_world/utils/Request.dart';
 
 class UserCollectionWorksPage extends StatefulWidget {
   UserCollectionWorksPage({Key key}) : super(key: key);
@@ -13,67 +15,82 @@ class UserCollectionWorksPage extends StatefulWidget {
 }
 
 class _UserCollectionWorksPageState extends State<UserCollectionWorksPage> {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-       height: double.infinity,
-       child: CustomScrollView(
-         slivers: <Widget>[
-            SliverStaggeredGrid.countBuilder(
-              crossAxisCount: 4, 
-              itemCount: 10,
-              itemBuilder: (BuildContext context, int index) => ProgramItem(), 
-              staggeredTileBuilder:(int index) => StaggeredTile.fit(2),
-              mainAxisSpacing: 6.0,
-              crossAxisSpacing: 6.0,
-            )
-         ],
-       ),
-    );
-  }
-}
 
+  List<DiscoveryDataItem> _discoverItems = [];
 
-class ProgramItem extends StatefulWidget {
-  ProgramItem({Key key}) : super(key: key);
+  int _page = 1; // 
+  int _commentNum = 0;
+  bool _isMore = true;
 
-  @override
-  _ProgramItemState createState() => _ProgramItemState();
-}
-
-class _ProgramItemState extends State<ProgramItem> {
-  String _imgUrl = "";
-  void getHttp() async {
-    try {
-      Response response = await dio.get(
-          "http://shibe.online/api/shibes?count=1&urls=false&httpsUrls=true");
-      if (response.statusCode == HttpStatus.ok) {
-        var data = response.toString();
-        setState(() {
-          _imgUrl =
-              "https://cdn.shibe.online/shibes/${data.substring(1, data.length - 1)}.jpg";
-        });
+  // 获取item数据
+  Future getData() async {
+    var data = await PxzRequest().get(
+      "/member/collect_rescue",
+      data: {
+        "page": _page,
+        "limit": 20
       }
-    } catch (e) {
-      print(e);
+    );
+    if(data["status"] == "error") {
+      BotToast.showText(text: data["msg"]);
+      return;
     }
+    if(data["data"]["items"].length < 20) _isMore = false;
+    _commentNum = data["data"]["total_items"];
+    data["data"]["items"].forEach((e){
+      _discoverItems.add(DiscoveryDataItem.fromJson(e));
+    });
+    setState(() {});
   }
 
   @override
   void initState() {
     super.initState();
-    getHttp();
+    getData();
   }
 
   @override
   Widget build(BuildContext context) {
+    return CustomScrollView(
+      slivers: <Widget>[
+        SliverPadding(
+          padding: EdgeInsets.all(5),
+          sliver: SliverStaggeredGrid.countBuilder(
+            crossAxisCount: 4,
+            itemCount: _commentNum,
+            itemBuilder: (BuildContext context, int index) {
+              if(index >= _discoverItems.length && _isMore) {
+                _page++;
+                getData();
+              }
+              return ProgramItem(discoveryDataItem: _discoverItems[index]);
+            },
+            staggeredTileBuilder: (int index) => StaggeredTile.fit(2),
+            mainAxisSpacing: 5.0,
+            crossAxisSpacing: 5.0,
+          ),
+        )
+      ],
+    );
+  }
+}
+
+///
+/// 页面展示小卡片
+///
+class ProgramItem extends StatelessWidget {
+  const ProgramItem({Key key, this.discoveryDataItem}) : super(key: key);
+  final DiscoveryDataItem discoveryDataItem;
+  @override
+  Widget build(BuildContext context) {
     return Container(
+        child: Container(
       decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(11.0),
+          borderRadius: BorderRadius.circular(3.0),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
+              color: Colors.grey.withOpacity(0.2),
               spreadRadius: 0.5,
               blurRadius: 0.3,
               offset: Offset(0, 0.5),
@@ -81,42 +98,86 @@ class _ProgramItemState extends State<ProgramItem> {
           ]),
       child: Column(
         children: <Widget>[
-          _imgUrl != ""
-              ? ClipRRect(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(11)),
-                  child: FadeInImage.assetNetwork(
-                    placeholder:  "assets/navigationbar/bar4.png",
-                    image: _imgUrl
-                  )
-                )
-              : Text(""),
-          Container(
-            margin: EdgeInsets.fromLTRB(5, 10, 10, 5),
-            child: Text("黑化肥很黑化肥很黑化肥很黑化肥很黑化肥很黑化肥很黑化"),
+          GestureDetector(
+            onTap: () {
+              if (discoveryDataItem.resourceType == "video") {
+                Navigator.push(context, MaterialPageRoute(builder:(context) => DetailsVideoPage(id: discoveryDataItem.id)));
+              } else {
+                Navigator.push(context, MaterialPageRoute(builder:(context) => DetailsArticlePage(id: discoveryDataItem.id,)));              
+              }
+            },
+            child: Stack(
+              children: <Widget>[
+                ClipRRect(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(3)),
+                child: discoveryDataItem.mainDefaultId != null
+                    ? CachedNetworkImage (
+                      placeholder: (context, url) => Image.asset("assets/home/loading.png"),
+                      imageUrl: discoveryDataItem.mainDefaultId,
+                    ) 
+                    : Image.asset("assets/home/loading.png")),
+                discoveryDataItem.resourceType == "video" ?  
+                Positioned(
+                  right: 5,
+                  bottom: 5,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black26,
+                      borderRadius: BorderRadius.all(Radius.circular(25)),
+                    ),
+                    child: Icon(Icons.play_arrow, color: Colors.white, size: 25,),
+                  ) 
+                ) : 
+                SizedBox.shrink() 
+              ],
+            )
           ),
           Container(
-            padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
+            margin: EdgeInsets.fromLTRB(5, 10, 10, 5),
+            child: Text(
+              discoveryDataItem.title,
+              textAlign: TextAlign.left,
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.fromLTRB(7, 0, 7, 0),
             height: 35.0,
             child: Row(
               children: <Widget>[
-                CircleAvatar(
-                  radius: 10,
-                  backgroundImage: NetworkImage(
-                    "https://timable.com/res/pic/84e4cdc6a00ef38cf9c8a48a0b1f3f0f3.jpg"),
+                Container(
+                  padding: EdgeInsets.fromLTRB(0, 0, 6, 0),
+                  child: CircleAvatar(
+                    radius: 10,
+                    backgroundImage:
+                        NetworkImage(discoveryDataItem.memberDetail.avatar),
+                  ),
                 ),
-                Text("派小爪", style: TextStyle(fontSize: 10),),
+                Text(
+                  discoveryDataItem.memberDetail.nickname,
+                  style: TextStyle(
+                    fontSize: 10,
+                  ),
+                ),
                 Expanded(child: Text("")),
-                FlatButton.icon(
-                  padding: EdgeInsets.zero,
-                  icon: Icon(Icons.favorite, color: Color(0xfff3d72f), size: 15,), 
-                  label: Text("1113", style: TextStyle(fontSize: 10),),
-                  onPressed: null
+                SizedBox(
+                  width: 28,
+                  child: IconButton(
+                      icon: Icon(
+                        Icons.favorite,
+                        color: Color(0xfff3d72f),
+                        size: 15,
+                      ),
+                      onPressed: null),
+                ),
+                Text(
+                  discoveryDataItem.likeNum,
+                  style: TextStyle(fontSize: 10),
                 )
               ],
             ),
           ),
         ],
       ),
-    );
+    ));
   }
 }

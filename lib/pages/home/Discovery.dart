@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
+import 'package:hello_world/jsons/HomeDiscoveryDataModel.dart';
 import 'package:hello_world/utils/Request.dart';
 
 /// 详情页路由
@@ -224,44 +225,5 @@ class ProgramItem extends StatelessWidget {
         ],
       ),
     ));
-  }
-}
-
-/// item data class
-///
-class DiscoveryDataItem {
-  String id;
-  String title;
-  String likeNum;
-  String mainDefaultId;
-  String resourceType;
-  MemberDetail memberDetail;
-  DiscoveryDataItem(
-      {this.id, this.title, this.likeNum, this.mainDefaultId, this.memberDetail, this.resourceType});
-
-  factory DiscoveryDataItem.fromJson(Map<String, dynamic> parsedJson) {
-    return DiscoveryDataItem(
-        id: parsedJson["id"],
-        title: parsedJson["title"],
-        likeNum: parsedJson["like_num"],
-        mainDefaultId: parsedJson["main_default_id"],
-        resourceType: parsedJson["resource_type"],
-        memberDetail: MemberDetail.fromJson(parsedJson["member_detail"]),
-      );
-  }
-}
-
-class MemberDetail {
-  String id;
-  String avatar;
-  String nickname;
-
-  MemberDetail({this.id, this.avatar, this.nickname});
-
-  factory MemberDetail.fromJson(Map<String, dynamic> parsedJson) {
-    return MemberDetail(
-        id: parsedJson["id"],
-        avatar: parsedJson["avatar"],
-        nickname: parsedJson["nickname"]);
   }
 }

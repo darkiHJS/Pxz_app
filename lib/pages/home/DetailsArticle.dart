@@ -409,33 +409,33 @@ class _CommentListState extends State<CommentList> {
                           ListView.builder(
                             shrinkWrap: true,
                             physics: NeverScrollableScrollPhysics(),
-                            itemCount: item.commentItemChildrens.length,
+                            itemCount: item.childrens.length,
                             itemBuilder: (BuildContext context, int index) {
                               return CommentChildItem(
-                                  item.commentItemChildrens[index]);
+                                  item.childrens[index]);
                             },
                           ),
                           item.childrenCount > 0 &&
                                   item.childrenCount -
-                                          item.commentItemChildrens.length >
+                                          item.childrens.length >
                                       0
                               ? FlatButton(
                                   onPressed: () {
-                                    if (item.commentItemChildrens.length % 10 ==
+                                    if (item.childrens.length % 10 ==
                                             0 ||
-                                        item.commentItemChildrens.length == 1) {
-                                      if (item.commentItemChildrens.length ==
+                                        item.childrens.length == 1) {
+                                      if (item.childrens.length ==
                                           1) {
                                         getSecondaryCommentList(item.id, 1)
                                             .then((value) {
                                           setState(() {
-                                            item.commentItemChildrens = [];
+                                            item.childrens = [];
                                             List newData = value;
                                             newData.forEach((element) {
-                                              CommentItemChildrens newItem =
-                                                  CommentItemChildrens.fromJson(
+                                              CommentItem newItem =
+                                                  CommentItem.fromJson(
                                                       element);
-                                              item.commentItemChildrens
+                                              item.childrens
                                                   .add(newItem);
                                             });
                                           });
@@ -444,7 +444,7 @@ class _CommentListState extends State<CommentList> {
                                     }
                                   },
                                   child: Text(
-                                    "展开${item.childrenCount - item.commentItemChildrens.length}条回复",
+                                    "展开${item.childrenCount - item.childrens.length}条回复",
                                     style: TextStyle(
                                         color: Colors.blue, fontSize: 12),
                                   ))
@@ -470,7 +470,7 @@ class _CommentListState extends State<CommentList> {
 // 二级评论 item
 
 class CommentChildItem extends StatelessWidget {
-  final CommentItemChildrens item;
+  final CommentItem item;
   final TapGestureRecognizer _tapGestureRecognizer =
       new TapGestureRecognizer(); // 不卸载可能会出现问题
   CommentChildItem(this.item);

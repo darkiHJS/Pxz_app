@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:bot_toast/bot_toast.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_world/utils/Request.dart';
@@ -175,23 +176,25 @@ class _LoginPageState extends State<LoginPage> {
                 child: FlatButton(
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30)),
-                    onPressed: () {
+                    onPressed: () async{
                       print(userPhone);
                       print(captcha);
                       if(isPhone(userPhone) && isValidateCaptcha(captcha)) {
-                        PxzRequest().post("/passport/login", data: {
+                        var data = await PxzRequest().post("/passport/login", data: {
                           "username": userPhone,
                           "vcode": captcha
-                        }).then((d) async {
-                          Directory appDocDir = await getApplicationDocumentsDirectory();
-                          String appDocPath = appDocDir.path;
-                          var cj=PersistCookieJar(dir:appDocPath+"/.cookies/");
-                          List<Cookie> cookies = cj.loadForRequest(Uri.parse("http://www.paixiaozhua.com"));
-                          Navigator.of(context).popAndPushNamed("/");
-                          print(cookies);
                         });
+                        if(data["status"] == "error") {
+                          BotToast.showText(text: data["msg"]);
+                          return;
+                        }
+                        Directory appDocDir = await getApplicationDocumentsDirectory();
+                        String appDocPath = appDocDir.path;
+                        var cj=PersistCookieJar(dir:appDocPath+"/.cookies/");
+                        List<Cookie> cookies = cj.loadForRequest(Uri.parse("http://www.paixiaozhua.com"));
+                        Navigator.of(context).popAndPushNamed("/");
                       }else {
-
+                        BotToast.showText(text: "请填写正确的手机号和验证码");
                       }
                     },
                     color: Color(0xfff3d72f),
