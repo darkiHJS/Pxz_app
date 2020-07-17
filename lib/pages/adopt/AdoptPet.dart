@@ -449,13 +449,14 @@ class _AdoptPetPageState extends State<AdoptPetPage> {
                                                       onChanged: (v) {
                                                         _lingYangRemark = v;
                                                       },
+                                                      maxLines: 10086,
                                                       style: TextStyle(fontSize: 12),
                                                       decoration: InputDecoration(
                                                           hintText: "请认真填写,提交后请耐心等待送养人回复.....",
                                                           isDense: true,
                                                           hintStyle: TextStyle(
                                                             color: Color(0xffaaaaaa),
-                                                            fontSize: 12
+                                                            fontSize: 12,
                                                           ),
                                                           border:
                                                               InputBorder.none),

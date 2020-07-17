@@ -31,6 +31,7 @@ class _UserCollectionWorksPageState extends State<UserCollectionWorksPage> {
         "limit": 20
       }
     );
+    print(data);
     if(data["status"] == "error") {
       BotToast.showText(text: data["msg"]);
       return;
@@ -41,6 +42,14 @@ class _UserCollectionWorksPageState extends State<UserCollectionWorksPage> {
       _discoverItems.add(DiscoveryDataItem.fromJson(e));
     });
     setState(() {});
+  }
+   
+  // 重加载 
+  reloadData() {
+    _page = 1;
+    _discoverItems = [];
+    _isMore = true;
+    getData();
   }
 
   @override
@@ -63,7 +72,7 @@ class _UserCollectionWorksPageState extends State<UserCollectionWorksPage> {
                 _page++;
                 getData();
               }
-              return ProgramItem(discoveryDataItem: _discoverItems[index]);
+              return ProgramItem(discoveryDataItem: _discoverItems[index], reload: reloadData,);
             },
             staggeredTileBuilder: (int index) => StaggeredTile.fit(2),
             mainAxisSpacing: 5.0,
@@ -79,8 +88,9 @@ class _UserCollectionWorksPageState extends State<UserCollectionWorksPage> {
 /// 页面展示小卡片
 ///
 class ProgramItem extends StatelessWidget {
-  const ProgramItem({Key key, this.discoveryDataItem}) : super(key: key);
   final DiscoveryDataItem discoveryDataItem;
+  final Function reload;
+  const ProgramItem({Key key, this.discoveryDataItem, this.reload}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -101,9 +111,13 @@ class ProgramItem extends StatelessWidget {
           GestureDetector(
             onTap: () {
               if (discoveryDataItem.resourceType == "video") {
-                Navigator.push(context, MaterialPageRoute(builder:(context) => DetailsVideoPage(id: discoveryDataItem.id)));
+                Navigator.push(context, MaterialPageRoute(builder:(context) => DetailsVideoPage(id: discoveryDataItem.id))).then((value) {
+                  reload();
+                });
               } else {
-                Navigator.push(context, MaterialPageRoute(builder:(context) => DetailsArticlePage(id: discoveryDataItem.id,)));              
+                Navigator.push(context, MaterialPageRoute(builder:(context) => DetailsArticlePage(id: discoveryDataItem.id,))).then((value) {
+                  reload();
+                });              
               }
             },
             child: Stack(

@@ -1,4 +1,5 @@
 import 'package:awsome_video_player/awsome_video_player.dart';
+import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_world/jsons/ContentDetailsData.dart';
 import 'package:hello_world/utils/Request.dart';
@@ -22,10 +23,12 @@ class _DetailsVideoPageState extends State<DetailsVideoPage> {
 
   Future getPageData() async {
     Map<String, dynamic> data = await PxzRequest().get("/rescue/detail/$id");
-    setState(() {
-      _contentDetailsData = ContentDetailsData.fromJson(data["data"]);
-    });
-    print(_contentDetailsData);
+    if(data["status"] == "error") {
+      BotToast.showText(text: data["msg"]);
+      return;
+    }
+    _contentDetailsData = ContentDetailsData.fromJson(data["data"]);
+    setState(() {});
   }
 
   @override
@@ -216,7 +219,7 @@ class _DetailsVideoPageState extends State<DetailsVideoPage> {
                                     Icons.favorite_border,
                                     color: Colors.white,
                                   ),
-                                  label: Text("1.2w",
+                                  label: Text(_contentDetailsData.likeNum,
                                       style: TextStyle(
                                         color: Colors.white,
                                       ))),
@@ -226,7 +229,7 @@ class _DetailsVideoPageState extends State<DetailsVideoPage> {
                                     Icons.star_border,
                                     color: Colors.white,
                                   ),
-                                  label: Text("55",
+                                  label: Text(_contentDetailsData.collectNum,
                                       style: TextStyle(
                                         color: Colors.white,
                                       ))),
@@ -236,7 +239,7 @@ class _DetailsVideoPageState extends State<DetailsVideoPage> {
                                     Icons.chat_bubble_outline,
                                     color: Colors.white,
                                   ),
-                                  label: Text("1.2w",
+                                  label: Text(_contentDetailsData.commentCount,
                                       style: TextStyle(
                                         color: Colors.white,
                                       ))),

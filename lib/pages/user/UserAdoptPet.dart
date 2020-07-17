@@ -1,7 +1,9 @@
+import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:hello_world/components/IconFont.dart';
 import 'package:hello_world/jsons/AdoptPetModel.dart';
+import 'package:hello_world/pages/user/UserAdoptAbout.dart';
 import 'package:hello_world/utils/Request.dart';
 
 class UserAdoptPetPage extends StatefulWidget {
@@ -30,42 +32,54 @@ class _UserAdoptPetPageState extends State<UserAdoptPetPage> {
         backgroundColor: Colors.transparent,
         builder: (BuildContext context) {
           return Container(
-            height: double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20))
-            ),
-            child: DefaultTabController(
-            length: 4,
-            child: Column(
-              children: <Widget>[
-                TabBar(tabs: [
-                  Tab(
-                    text: "全部",
-                  ),
-                  Tab(
-                    text: "待定",
-                  ),
-                  Tab(
-                    text: "确认领养",
-                  ),
-                  Tab(
-                    text: "已拒绝",
-                  ),
-                ]),
-                Expanded(
-                  child: TabBarView(
+              height: double.infinity,
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20))),
+              child: DefaultTabController(
+                length: 4,
+                child: Column(
                   children: <Widget>[
-                    Icon(Icons.directions_car),
-                    Icon(Icons.directions_transit),
-                    Icon(Icons.directions_transit),
-                    Icon(Icons.directions_bike),
-                  ],)
-                )
-              ],
-            ),
-            )
-          );
+                    TabBar(tabs: [
+                      Tab(
+                        text: "全部",
+                      ),
+                      Tab(
+                        text: "待定",
+                      ),
+                      Tab(
+                        text: "确认领养",
+                      ),
+                      Tab(
+                        text: "已拒绝",
+                      ),
+                    ]),
+                    Expanded(
+                        child: TabBarView(
+                      children: <Widget>[
+                        AdoptMeberListComp(
+                          id: widget.id,
+                          type: null,
+                        ),
+                        AdoptMeberListComp(
+                          id: widget.id,
+                          type: "firaudit",
+                        ),
+                        AdoptMeberListComp(
+                          id: widget.id,
+                          type: "succ",
+                        ),
+                        AdoptMeberListComp(
+                          id: widget.id,
+                          type: "turndown",
+                        ),
+                      ],
+                    ))
+                  ],
+                ),
+              ));
         });
   }
 
@@ -463,11 +477,460 @@ class _UserAdoptPetPageState extends State<UserAdoptPetPage> {
                               ),
                             ],
                           ),
-                        ))
+                        )),
+                    _adoptPetData.status == "true"
+                        ? Positioned(
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            child: GestureDetector(
+                                onTap: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Container(
+                                    padding: EdgeInsets.all(30),
+                                    color: Colors.grey.withOpacity(0.5),
+                                    child: Center(
+                                      child: Image.asset(
+                                          "assets/adopt/packout.png"),
+                                    ))))
+                        : Container()
                   ],
                 ),
               ));
   }
 }
 
-class AdoptLongYangFormPage {}
+class AdoptMeberListComp extends StatefulWidget {
+  final String id;
+  final String type;
+  const AdoptMeberListComp({Key key, this.type, this.id}) : super(key: key);
+
+  @override
+  _AdoptMeberListCompState createState() => _AdoptMeberListCompState();
+}
+
+class _AdoptMeberListCompState extends State<AdoptMeberListComp> {
+  int _page = 1;
+  bool _isMore = true;
+  List<AdoptModel> _adoptItems = [];
+
+  Future getAdoptMeber() async {
+    var config = {"page": _page.toString(), "limit": 20.toString()};
+    if (widget.type != null) config["audit_status"] = widget.type;
+    var data =
+        await PxzRequest().get("/adopt/index/" + widget.id, data: config);
+    if (data["status"] == "error") {
+      BotToast.showText(text: data["msg"]);
+      return;
+    }
+    print(data);
+    if (data["data"]["items"].length < 20) _isMore = false;
+    data["data"]["items"].forEach((e) {
+      _adoptItems.add(AdoptModel.fromJson(e));
+    });
+    if (this.mounted) {
+      setState(() {});
+    }
+  }
+
+  reloadData() {
+    _page = 1;
+    _isMore = true;
+    _adoptItems = [];
+    getAdoptMeber();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getAdoptMeber();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+        itemCount: _adoptItems.length,
+        itemBuilder: (BuildContext context, int index) {
+          if (index % 20 == 0 && _isMore) {
+            getAdoptMeber();
+            return Container();
+          }
+          return AdoptMeberListItem(
+            data: _adoptItems[index],
+            reloadData: reloadData,
+          );
+        });
+  }
+}
+
+class AdoptMeberListItem extends StatefulWidget {
+  final AdoptModel data;
+  final Function reloadData;
+  const AdoptMeberListItem({Key key, this.data, this.reloadData})
+      : super(key: key);
+  @override
+  _AdoptMeberListItemState createState() => _AdoptMeberListItemState();
+}
+
+class _AdoptMeberListItemState extends State<AdoptMeberListItem> {
+  bool _showMoreLine = false;
+  final Map<String, dynamic> _type = {
+    "ready": {"buttonTitle": "待定", "next": "firaudit"},
+    "firaudit": {"buttonTitle": "确认领养", "next": "succ"},
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        margin: EdgeInsets.all(15),
+        padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
+        decoration: BoxDecoration(color: Colors.white, boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 1,
+            blurRadius: 2,
+            offset: Offset(0, 0), // changes position of shadow
+          ),
+        ]),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            GestureDetector(
+                onTap: () {
+                  Navigator.of(context)
+                      .push(MaterialPageRoute(
+                          builder: (BuildContext context) =>
+                              UserAdoptAboutPage(id: widget.data.id)))
+                      .then((value) {
+                    widget.reloadData();
+                  });
+                },
+                child: Container(
+                  width: 70,
+                  height: 70,
+                  decoration: BoxDecoration(
+                      image: DecorationImage(
+                          image: widget.data.memberItem.avatar == null
+                              ? AssetImage("assets/home/loading.png")
+                              : NetworkImage(widget.data.memberItem.avatar),
+                          fit: BoxFit.cover)),
+                )),
+            SizedBox(
+              width: 15,
+            ),
+            Expanded(
+                child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.only(),
+                    ),
+                    Text(widget.data.memberItem.nickname,
+                        style: TextStyle(fontSize: 18)),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    Icon(
+                      Icons.room,
+                      size: 14,
+                      color: Colors.grey,
+                    ),
+                    Text(
+                      "${widget.data.memberItem.pexp.area.split(',')[1]} ${widget.data.memberItem.pexp.area.split(',')[2]}",
+                      style: TextStyle(color: Colors.grey, fontSize: 10),
+                    )
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      widget.data.memberItem.pexp.age + "岁",
+                      style: TextStyle(color: Colors.black54, fontSize: 12),
+                    ),
+                    SizedBox(
+                      width: 6,
+                    ),
+                    Text(
+                      widget.data.memberItem.pexp.experience,
+                      style: TextStyle(color: Colors.black54, fontSize: 12),
+                    ),
+                    SizedBox(
+                      width: 6,
+                    ),
+                    Text(
+                      widget.data.memberItem.pexp.occupation,
+                      style: TextStyle(color: Colors.black54, fontSize: 12),
+                    )
+                  ],
+                ),
+                Text(
+                  widget.data.remark,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: _showMoreLine ? 99 : 2,
+                ),
+                _showMoreLine
+                    ? Container(
+                        height: 20,
+                      )
+                    : GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _showMoreLine = true;
+                          });
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          child: Icon(
+                            Icons.more_horiz,
+                            size: 30,
+                            color: Colors.black12,
+                          ),
+                        ),
+                      )
+              ],
+            )),
+            SizedBox(
+              width: 10,
+            ),
+            widget.data.auditStatus == "succ"
+                ? Text("领养成功", style: TextStyle(color: Colors.green))
+                : Container(),
+            widget.data.auditStatus == "turndown"
+                ? Text("已拒绝", style: TextStyle(color: Colors.red))
+                : Container(),
+            _type[widget.data.auditStatus] == null
+                ? Container()
+                : Column(
+                    children: <Widget>[
+                      GestureDetector(
+                        onTap: () async {
+                          var data =
+                              await PxzRequest().post("/adopt/audit", data: {
+                            "pet_id": widget.data.petId,
+                            "member_id": widget.data.memberId,
+                            "audit_status": _type[widget.data.auditStatus]
+                                ["next"],
+                            "id": widget.data.id
+                          });
+                          if (data["status"] == "error") {
+                            BotToast.showText(text: data["msg"]);
+                            return;
+                          }
+                          widget.reloadData();
+                        },
+                        child: Container(
+                          padding:
+                              EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(5),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.2),
+                                  spreadRadius: 1,
+                                  blurRadius: 2,
+                                  offset: Offset(
+                                      0, 0), // changes position of shadow
+                                ),
+                              ]),
+                          child: Text(
+                              _type[widget.data.auditStatus]["buttonTitle"]),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      GestureDetector(
+                        onTap: () {},
+                        child: Container(
+                          padding:
+                              EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              color: Color(0xffea6161),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.2),
+                                  spreadRadius: 1,
+                                  blurRadius: 2,
+                                  offset: Offset(
+                                      0, 0), // changes position of shadow
+                                ),
+                              ]),
+                          child:
+                              Text("拒绝", style: TextStyle(color: Colors.white)),
+                        ),
+                      )
+                    ],
+                  ),
+          ],
+        ));
+  }
+}
+
+class AdoptModel {
+  String id;
+  String memberId;
+  String petId;
+  String auditStatus;
+  String remark;
+  String createTime;
+  String updateTime;
+  MemberItem memberItem;
+
+  AdoptModel(
+      {this.id,
+      this.memberId,
+      this.petId,
+      this.auditStatus,
+      this.remark,
+      this.createTime,
+      this.updateTime,
+      this.memberItem});
+
+  AdoptModel.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    memberId = json['member_id'];
+    petId = json['pet_id'];
+    auditStatus = json['audit_status'];
+    remark = json['remark'];
+    createTime = json['create_time'];
+    updateTime = json['update_time'];
+    memberItem = json['member_item'] != null
+        ? new MemberItem.fromJson(json['member_item'])
+        : null;
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['member_id'] = this.memberId;
+    data['pet_id'] = this.petId;
+    data['audit_status'] = this.auditStatus;
+    data['remark'] = this.remark;
+    data['create_time'] = this.createTime;
+    data['update_time'] = this.updateTime;
+    if (this.memberItem != null) {
+      data['member_item'] = this.memberItem.toJson();
+    }
+    return data;
+  }
+}
+
+class MemberItem {
+  String id;
+  String nickname;
+  String avatar;
+  Pexp pexp;
+
+  MemberItem({this.id, this.nickname, this.avatar, this.pexp});
+
+  MemberItem.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    nickname = json['nickname'];
+    avatar = json['avatar'];
+    pexp = json['pexp'] != null ? new Pexp.fromJson(json['pexp']) : null;
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['nickname'] = this.nickname;
+    data['avatar'] = this.avatar;
+    if (this.pexp != null) {
+      data['pexp'] = this.pexp.toJson();
+    }
+    return data;
+  }
+}
+
+class Pexp {
+  String id;
+  String memberId;
+  String occupation;
+  String contact;
+  String wechat;
+  String wechatImg;
+  String sex;
+  String area;
+  String age;
+  String experience;
+  String liviEnvironment;
+  String marriage;
+  String familyConsent;
+  String allergy;
+  String paid;
+  String budget;
+  String createTime;
+  String updateTime;
+
+  Pexp(
+      {this.id,
+      this.memberId,
+      this.occupation,
+      this.contact,
+      this.wechat,
+      this.wechatImg,
+      this.sex,
+      this.area,
+      this.age,
+      this.experience,
+      this.liviEnvironment,
+      this.marriage,
+      this.familyConsent,
+      this.allergy,
+      this.paid,
+      this.budget,
+      this.createTime,
+      this.updateTime});
+
+  Pexp.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    memberId = json['member_id'];
+    occupation = json['occupation'];
+    contact = json['contact'];
+    wechat = json['wechat'];
+    wechatImg = json['wechat_img'];
+    sex = json['sex'];
+    area = json['area'];
+    age = json['age'];
+    experience = json['experience'];
+    liviEnvironment = json['livi_environment'];
+    marriage = json['marriage'];
+    familyConsent = json['family_consent'];
+    allergy = json['allergy'];
+    paid = json['paid'];
+    budget = json['budget'];
+    createTime = json['create_time'];
+    updateTime = json['update_time'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['member_id'] = this.memberId;
+    data['occupation'] = this.occupation;
+    data['contact'] = this.contact;
+    data['wechat'] = this.wechat;
+    data['wechat_img'] = this.wechatImg;
+    data['sex'] = this.sex;
+    data['area'] = this.area;
+    data['age'] = this.age;
+    data['experience'] = this.experience;
+    data['livi_environment'] = this.liviEnvironment;
+    data['marriage'] = this.marriage;
+    data['family_consent'] = this.familyConsent;
+    data['allergy'] = this.allergy;
+    data['paid'] = this.paid;
+    data['budget'] = this.budget;
+    data['create_time'] = this.createTime;
+    data['update_time'] = this.updateTime;
+    return data;
+  }
+}

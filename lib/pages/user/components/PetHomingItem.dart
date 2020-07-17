@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hello_world/components/IconFont.dart';
 import 'package:hello_world/jsons/AdoptPetItemModel.dart';
+import 'dart:math' as math;
 
 class PetHommingItem extends StatelessWidget {
   final PetItemData itemData;
@@ -25,12 +26,32 @@ class PetHommingItem extends StatelessWidget {
               margin: EdgeInsets.all(10),
               width: 120,
               height: 120,
-              child: ClipRRect(
+              child: Stack(
+                fit: StackFit.expand,
+                children: <Widget>[
+                  ClipRRect(
                   borderRadius: BorderRadius.circular(4),
                   child: Image.network(
                     itemData.imageDefaultId,
                     fit: BoxFit.cover,
                   )),
+                  itemData.status == "true" ? 
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      color: Colors.white.withOpacity(.6),
+                      alignment: Alignment.center,
+                      child: Transform.rotate(
+                        angle: math.pi*-.2,
+                        child: Text("已领养", style: TextStyle(color: Color(0xfffecf1f), fontSize: 30, fontWeight: FontWeight.bold),),
+                      )
+                    ),
+                  ):Container()
+                ],
+              )
             ),
             Expanded(
                 child: Container(

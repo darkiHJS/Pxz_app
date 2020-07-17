@@ -1,7 +1,7 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_world/jsons/AdoptPetItemModel.dart';
-import 'package:hello_world/pages/user/UserAdoptPet.dart';
+import 'package:hello_world/pages/adopt/AdoptPet.dart';
 import 'package:hello_world/pages/user/components/PetHomingItem.dart';
 import 'package:hello_world/utils/Request.dart';
 
@@ -27,23 +27,19 @@ class _UserCollectionHomingPageState extends State<UserCollectionHomingPage> {
       BotToast.showText(text: data["msg"]);
       return;
     }
-
+    print(data);
     if(data["data"]["items"].length < 20) _isMore = false;
     data["data"]["items"].forEach((e) {
       _petItemDatas.add(PetItemData.fromJson(e));
     });
     setState(() {});
-    // if (data["status"] == "success" && _isMore) {
-    //   var datas = data["data"]["items"];
-    //   print(datas);
-    //   if (datas.length < 20) {
-    //     _isMore = false;
-    //   }
-    //   for (var item in datas) {
-    //     PetItemData d = PetItemData.fromJson(item);
-    //     _petItemDatas.add(d);
-    //   }
-    // }
+  }
+
+  reloadData() {
+    _isMore = true;
+    _index = 1;
+    _petItemDatas = [];
+    getMyPetList();
   }
 
   @override
@@ -70,7 +66,9 @@ class _UserCollectionHomingPageState extends State<UserCollectionHomingPage> {
             child = GestureDetector(
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
-                    builder: (BuildContext context) => UserAdoptPetPage(id: _petItemDatas[index].id,)));
+                    builder: (BuildContext context) => AdoptPetPage(id: _petItemDatas[index].id,))).then((value){
+                      reloadData();
+                    });
               },
               child: PetHommingItem(
                 itemData: _petItemDatas[index],

@@ -28,7 +28,7 @@ class _DetailsArticlePageState extends State<DetailsArticlePage> {
 
   Future getPageData() async {
     Map<String, dynamic> data = await PxzRequest().get("/rescue/detail/$id");
-    setState(() {
+    
       double maxHight = 0;
       _contentDetailsData = ContentDetailsData.fromJson(data["data"]);
       _contentDetailsData.resources.forEach((element) {
@@ -37,7 +37,9 @@ class _DetailsArticlePageState extends State<DetailsArticlePage> {
           _maxSwiper = element.whextends;
         }
       });
-    });
+    if(this.mounted) {
+      setState(() {});
+    }
   }
 
   @override

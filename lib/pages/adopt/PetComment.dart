@@ -402,7 +402,9 @@ class CommentChildItemComp extends StatelessWidget {
                   padding: EdgeInsets.fromLTRB(0, 0, 5, 0),
                   child: CircleAvatar(
                     radius: 10,
-                    backgroundImage: NetworkImage(item.memberDetail.avatar),
+                    backgroundImage: item.memberDetail.avatar != null
+                      ? NetworkImage(item.memberDetail.avatar)
+                      : AssetImage("assets/details/details_loading.gif"),
                   ),
                 ),
                 Expanded(

@@ -19,7 +19,7 @@ class _UserReleaseHomingPageState extends State<UserReleaseHomingPage> {
 
   // 加载方法
   Future getMyPetList() async {
-    var data = await PxzRequest().get("/pet/index", data: {
+    var data = await PxzRequest().get("/member/pet", data: {
       "page": _index,
       "limit": 20,
     });
@@ -27,7 +27,7 @@ class _UserReleaseHomingPageState extends State<UserReleaseHomingPage> {
       BotToast.showText(text: data["msg"]);
       return;
     }
-
+    print(data);
     if(data["data"]["items"].length < 20) _isMore = false;
     data["data"]["items"].forEach((e) {
       _petItemDatas.add(PetItemData.fromJson(e));

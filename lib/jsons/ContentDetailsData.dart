@@ -136,11 +136,12 @@ class MemberDetail {
 	String id;
 	String nickname;
 	String avatar;
-	String memberFriend;
+	bool memberFriend;
 
 	MemberDetail({this.id, this.nickname, this.avatar, this.memberFriend});
 
 	MemberDetail.fromJson(Map<String, dynamic> json) {
+    print(json);
 		id = json['id'];
 		nickname = json['nickname'];
 		avatar = json['avatar'];

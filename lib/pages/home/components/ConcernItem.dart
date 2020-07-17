@@ -1,13 +1,19 @@
+import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
+import 'package:hello_world/pages/home/Concern.dart';
+import 'package:hello_world/utils/Request.dart';
 
 class ConcernItem extends StatefulWidget {
-  ConcernItem({Key key}) : super(key: key);
+  final ConcernData data;
+  
+  ConcernItem({Key key, this.data}) : super(key: key);
 
   @override
   _ConcernItemState createState() => _ConcernItemState();
 }
 
 class _ConcernItemState extends State<ConcernItem> {
+  bool _isLike = false;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -26,36 +32,24 @@ class _ConcernItemState extends State<ConcernItem> {
                     padding: EdgeInsets.fromLTRB(15, 0, 10, 0),
                     child: CircleAvatar(
                       radius: 25,
-                      backgroundImage: NetworkImage(
-                          "https://timable.com/res/pic/84e4cdc6a00ef38cf9c8a48a0b1f3f0f3.jpg"),
+                      backgroundImage: NetworkImage(widget.data.avatar),
                     ),
                   ),
-                  Text("猫爪爪的日常"),
+                  Text(widget.data.title),
                   Expanded(child: Text("")),
-                  AttentionButton(),
-                  IconButton(
-                    icon: Icon(Icons.more_vert),
-                    onPressed: null,
-                    padding: EdgeInsets.zero,
-                  )
+                  AttentionButton(friendId: widget.data.memberId),
+                  SizedBox(width: 20)
                 ],
               )),
           Container(
               width: double.infinity, height: 365.0, child: ImagesAndVideo()),
           Container(
-            width: double.infinity,
-            height: 85.0,
-            padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
+            padding: EdgeInsets.all(10),
             color: Colors.white,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "主人与猫咪之间的小游戏！猫：零食是逃不过我的眼睛的~",
-                    textAlign: TextAlign.left,
-                  ),
-                ),
+                Text(widget.data.desc),
                 Container(
                   padding: EdgeInsets.only(top: 10),
                   child: Row(
@@ -77,25 +71,38 @@ class _ConcernItemState extends State<ConcernItem> {
                         ),
                       ),
                       Expanded(child: Text("")),
-                      SizedBox(
-                          width: 80,
-                          height: 25,
-                          child: FlatButton.icon(
-                            padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
-                            icon: Icon(Icons.open_in_new),
-                            label: Text("999"),
-                            onPressed: null,
-                          )),
-                      SizedBox(
-                          width: 82,
-                          height: 25,
-                          child: FlatButton.icon(
-                            padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
-                            icon: Icon(Icons.chat_bubble_outline),
-                            label: Text("9999"),
-                            onPressed: null,
-                          )),
-                      LikeButton()
+                      GestureDetector(
+                        onTap: (){},
+                        child: Row(
+                          children: <Widget>[
+                            Icon(Icons.open_in_new, color: Color(0xff949494)),
+                            SizedBox(width: 4,),
+                            Text(widget.data.shareCount, style: TextStyle(color: Color(0xff949494)))
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: 10,),
+                      GestureDetector(
+                        onTap: (){},
+                        child: Row(
+                          children: <Widget>[
+                            Icon(Icons.chat_bubble_outline, color: Color(0xff949494)),
+                            SizedBox(width: 4,),
+                            Text(widget.data.collectNum, style: TextStyle(color: Color(0xff949494)))
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: 10,),
+                      GestureDetector(
+                        onTap: (){},
+                        child: Row(
+                          children: <Widget>[
+                            _isLike ? Icon(Icons.favorite, color: Color(0xfff3d72f)) : Icon(Icons.favorite_border, color: Color(0xff949494)),
+                            SizedBox(width: 4,),
+                            Text(widget.data.likeNum, style: TextStyle(color: Color(0xff949494))),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 )
@@ -162,7 +169,8 @@ class _ImagesAndVideoState extends State<ImagesAndVideo> {
 
 // 关注按钮
 class AttentionButton extends StatefulWidget {
-  AttentionButton({Key key}) : super(key: key);
+  final String friendId;
+  AttentionButton({Key key, this.friendId}) : super(key: key);
 
   @override
   _AttentionButtonState createState() => _AttentionButtonState();
@@ -177,7 +185,17 @@ class _AttentionButtonState extends State<AttentionButton> {
         width: 60,
         height: 25,
         child: FlatButton(
-          onPressed: () {
+          onPressed: () async {
+            var data = await PxzRequest().post(
+              "/member/attention",
+              data: {
+                "friend_id":  widget.friendId
+              }
+            );
+            if(data["status"] == "error") {
+              BotToast.showText(text: data["msg"]);
+              return;
+            }
             setState(() {
               _isAttention = !_isAttention;
             });
@@ -193,47 +211,6 @@ class _AttentionButtonState extends State<AttentionButton> {
           ),
         ),
       ),
-    );
-  }
-}
-
-// 点赞按钮
-class LikeButton extends StatefulWidget {
-  LikeButton({Key key}) : super(key: key);
-
-  @override
-  _LikeButtonState createState() => _LikeButtonState();
-}
-
-class _LikeButtonState extends State<LikeButton> {
-  bool _isLike = true;
-  int _likeNum = 10309;
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: SizedBox(
-          width: 82,
-          height: 25,
-          child: FlatButton.icon(
-            padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
-            icon: _isLike
-                ? Icon(Icons.favorite, color: Color(0xfff3d72f))
-                : Icon(Icons.favorite_border, color: Color(0xff949494)),
-            label: Text("$_likeNum", style: TextStyle(color: Color(0xff949494))),
-            onPressed: () {
-              if (_isLike) {
-                setState(() {
-                  _isLike = false;
-                  _likeNum--;
-                });
-              } else {
-                setState(() {
-                  _isLike = true;
-                  _likeNum++;
-                });
-              }
-            },
-          )),
     );
   }
 }

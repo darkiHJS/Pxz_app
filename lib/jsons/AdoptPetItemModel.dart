@@ -24,12 +24,19 @@ class PetItemData {
 	String wechatNumber;
 	String wechatQrcode;
 	String mobile;
+  String status; // 领养状态
 	String petVarietyId;
 	List<PetTagList> petTagList;
 	MemberDetail memberDetail;
 	List<Resources> resources;
 
-	PetItemData({this.id, this.name, this.ptsid, this.cateId, this.age, this.ageStage, this.sex, this.vaccine, this.sterilization, this.deworming, this.origin, this.bodyType, this.hair, this.health, this.marketable, this.uptime, this.createTime, this.lastModify, this.imageDefaultId, this.intro, this.area, this.addr, this.wechatNumber, this.wechatQrcode, this.mobile, this.petVarietyId, this.petTagList, this.memberDetail, this.resources});
+	PetItemData({
+    this.id, this.name, this.ptsid, this.cateId, this.age, this.ageStage, this.sex,
+    this.vaccine, this.sterilization, this.deworming, this.origin, this.bodyType, 
+    this.hair, this.health, this.marketable, this.uptime, this.createTime, this.lastModify, this.imageDefaultId, this.intro, 
+    this.area, this.addr, this.wechatNumber, this.wechatQrcode, this.mobile, this.petVarietyId, 
+    this.petTagList, this.memberDetail, this.resources, this.status
+    });
 
 	PetItemData.fromJson(Map<String, dynamic> json) {
 		id = json['id'];
@@ -48,6 +55,7 @@ class PetItemData {
 		health = json['health'];
 		marketable = json['marketable'];
 		uptime = json['uptime'];
+		status = json['status'];
 		createTime = json['create_time'];
 		lastModify = json['last_modify'];
 		imageDefaultId = json['image_default_id'];
@@ -93,6 +101,7 @@ class PetItemData {
 		data['intro'] = this.intro;
 		data['area'] = this.area;
 		data['addr'] = this.addr;
+    data['status'] = this.status;
 		data['wechat_number'] = this.wechatNumber;
 		data['wechat_qrcode'] = this.wechatQrcode;
 		data['mobile'] = this.mobile;
